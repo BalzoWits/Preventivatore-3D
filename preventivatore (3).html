@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preventivatore TOYS</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #ff6b35;
+    --accent2: #3d9eff;
+    --text: #f0f0f0;
+    --text-muted: #888;
+    --green: #4caf7d;
+    --red: #e05252;
+    --yellow: #f5c842;
+    --radius: 10px;
+    --font: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--accent);
+  }
+  header .mode-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .tab-btn.laser.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+  }
+
+  /* MAIN LAYOUT */
+  .app { max-width: 900px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  /* SECTION CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 12px 16px;
+    background: var(--surface2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .card-header .toggle-icon { transition: transform .2s; }
+  .card-header.collapsed .toggle-icon { transform: rotate(-90deg); }
+  .card-body { padding: 16px; }
+  .card-body.hidden { display: none; }
+
+  /* FORM GRID */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  input[type=number], input[type=text], select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: var(--font);
+    width: 100%;
+    transition: border-color .15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .laser-mode input:focus, .laser-mode select:focus {
+    border-color: var(--accent2);
+  }
+  input.highlight { border-color: var(--accent); background: #1f1710; }
+
+  /* RESULT BOX */
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .result-box.accent { border-color: var(--accent); background: #1f1710; }
+  .result-box.accent2 { border-color: var(--accent2); background: #101a2a; }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-row .lbl { color: var(--text-muted); }
+  .result-row .val { font-weight: 600; }
+  .result-row.big .lbl { font-size: 16px; font-weight: 700; color: var(--text); }
+  .result-row.big .val { font-size: 24px; font-weight: 800; color: var(--accent); }
+  .laser-mode .result-row.big .val { color: var(--accent2); }
+  .result-row.profit .val { color: var(--green); }
+
+  /* QUOTE TABLE */
+  .quote-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .quote-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .quote-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .quote-table tr:last-child td { border-bottom: none; }
+  .quote-table input[type=number] {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--border);
+    border-radius: 0;
+    padding: 2px 4px;
+    width: 80px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 11px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn.secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn.laser { background: var(--accent2); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge.green { background: var(--green); }
+  .badge.yellow { background: var(--yellow); color: #000; }
+
+  /* SETTINGS MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    background: var(--surface2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+  .modal-header h2 { font-size: 16px; }
+  .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .settings-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* SETTINGS FAB */
+  .fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99;
+    transition: background .15s;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  }
+  .fab:hover { background: var(--surface); color: var(--text); }
+
+  /* WARNINGS */
+  .warning {
+    background: #2a1f00;
+    border: 1px solid #5a4000;
+    border-radius: 7px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--yellow);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .warning span { line-height: 1.5; }
+
+  /* PRINT BUTTON */
+  .print-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 9px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* NOTES */
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .form-grid, .form-grid.three { grid-template-columns: 1fr 1fr; }
+    header h1 { font-size: 15px; }
+    .tab-btn { padding: 5px 10px; font-size: 12px; }
+    .result-row.big .val { font-size: 20px; }
+  }
+  @media (max-width: 380px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  /* HIDDEN */
+  .mode-section { display: none; }
+  .mode-section.active { display: block; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* PROFIT BAR */
+  .profit-bar-wrap { margin-top: 6px; }
+  .profit-bar-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .profit-bar-track { background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
+  .profit-bar-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .3s; min-width: 0; }
+
+  /* INFO TOOLTIP */
+  .info { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+
+  /* TIME INPUT (ore + minuti) */
+  .time-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .time-inputs .sub {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .time-inputs .sub span {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background: #fff !important; color: #111 !important; font-size: 12px; }
+    header { position: static; background: #fff !important; border-bottom: 2px solid #333 !important; }
+    header h1 { color: #333 !important; }
+    .fab, .btn-row, .mode-tabs { display: none !important; }
+    /* Hide the inactive mode entirely */
+    .mode-section:not(.active) { display: none !important; }
+    /* Cards: never break inside */
+    .card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc !important; background: #fff !important; margin-bottom: 10px; }
+    .card-header { background: #eee !important; color: #333 !important; }
+    /* Force all cards open for print */
+    .card-body.hidden { display: block !important; }
+    .card-header.collapsed .toggle-icon { transform: none !important; }
+    /* Result box */
+    .result-box { break-inside: avoid; page-break-inside: avoid; border: 2px solid #333 !important; background: #fff !important; }
+    .result-box.accent, .result-box.accent2 { background: #f9f9f9 !important; }
+    .result-row .lbl { color: #444 !important; }
+    .result-row.big .val { color: #111 !important; font-size: 18px !important; }
+    .result-row.profit .val { color: #2a7a4a !important; }
+    /* Inputs in print */
+    input, select, textarea {
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px solid #ccc !important;
+      border-radius: 0 !important;
+      color: #111 !important;
+      padding: 2px 4px !important;
+    }
+    .info { color: #888 !important; }
+    .warning { background: #fffbe6 !important; border-color: #e6c200 !important; color: #665500 !important; }
+    /* Page setup */
+    @page { margin: 15mm 12mm; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🖨 PREVENTIVATORE TOYS</h1>
+  <div class="mode-tabs">
+    <button class="tab-btn active" onclick="setMode('print')">🖨 Stampa 3D</button>
+    <button class="tab-btn laser" onclick="setMode('laser')">⚡ Laser</button>
+  </div>
+</header>
+
+<!-- ==================== STAMPA 3D ==================== -->
+<div class="app mode-section active" id="mode-print">
+
+  <!-- Progetto -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progetto <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Nome progetto</label>
+          <input type="text" id="p_name" placeholder="es. Portachiavi drago" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>% Guadagno desiderato</label>
+          <input type="number" id="p_profit_pct" value="100" min="0" oninput="calcPrint()">
+          <div class="info">100% = raddoppi il costo</div>
+        </div>
+        <div class="form-group">
+          <label>Spese spedizione (€)</label>
+          <input type="number" id="p_shipping" value="0" min="0" step="0.1" oninput="calcPrint()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progettazione -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progettazione CAD <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Ore di progettazione</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_design_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_design_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Costo modello acquistato (€)</label>
+          <input type="number" id="p_model_cost" value="0" min="0" step="0.5" oninput="calcPrint()">
+          <div class="info">Solo se hai comprato un modello già fatto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stampa -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Parametri Stampa <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid three">
+        <div class="form-group">
+          <label>Ore di stampa (per piatto)</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_print_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_print_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Filamento per piatto (g)</label>
+          <input type="number" id="p_filament_g" value="0" min="0" step="1" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Ore finitura (per piatto)</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_finish_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_finish_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+          <div class="info">Supporti, levigatura, ecc.</div>
+        </div>
+        <div class="form-group">
+          <label>Pezzi per piatto</label>
+          <input type="number" id="p_pcs_plate" value="1" min="1" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Numero piatti totali</label>
+          <input type="number" id="p_plates" value="1" min="1" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Pezzi extra (+scorta)</label>
+          <input type="number" id="p_extra" value="0" min="0" oninput="calcPrint()">
+          <div class="info">Pezzi aggiuntivi per sicurezza</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optionals -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Optionals (portachiavi, resina, NFC) <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>N° portachiavi (per piatto)</label>
+          <input type="number" id="p_keychain_n" value="0" min="0" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Resina (g per piatto)</label>
+          <input type="number" id="p_resin_g" value="0" min="0" step="0.5" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>N° NFC (per piatto)</label>
+          <input type="number" id="p_nfc_n" value="0" min="0" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Ore applicazione optionals (per piatto)</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_opt_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_opt_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Altre spese extra (€ totali)</label>
+          <input type="number" id="p_extra_cost" value="0" min="0" step="0.5" oninput="calcPrint()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risultati -->
+  <div class="result-box accent" id="print_result_box">
+    <div class="result-row">
+      <span class="lbl">Pezzi totali prodotti</span>
+      <span class="val" id="r_total_pcs">0</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl">Costo progettazione <span style="font-size:10px;opacity:.6">(no markup)</span></span>
+      <span class="val" id="r_design_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo macchina (tot piatti)</span>
+      <span class="val" id="r_machine_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo materiale</span>
+      <span class="val" id="r_material_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo finitura</span>
+      <span class="val" id="r_finish_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo optionals</span>
+      <span class="val" id="r_opt_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Spedizione</span>
+      <span class="val" id="r_shipping">€ 0.00</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl"><strong>Costo totale produzione</strong></span>
+      <span class="val" id="r_total_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Guadagno applicato</span>
+      <span class="val profit" id="r_profit">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">💰 PREVENTIVO TOTALE</span>
+      <span class="val" id="r_quote_total">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">📦 Prezzo per pezzo (CAD1)</span>
+      <span class="val" id="r_price_per">€ 0.00</span>
+    </div>
+  </div>
+
+  <!-- Dettaglio per piatto -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Dettaglio per piatto <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden" id="plate_detail">
+      <table class="quote-table">
+        <thead>
+          <tr>
+            <th>Piatto</th>
+            <th>Costo prod.</th>
+            <th>Preventivo</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody id="plate_rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Note -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Note preventivo <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="warning">
+        <span>⚠️</span>
+        <span id="print_warnings">—</span>
+      </div>
+      <div style="margin-top:12px">
+        <label style="font-size:12px;color:var(--text-muted)">Note aggiuntive</label>
+        <textarea id="p_notes" placeholder="Inserisci note per questo preventivo..." style="margin-top:6px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="window.print()">🖨 Stampa/Salva PDF</button>
+    <button class="btn secondary" onclick="downloadJpg('print')">📷 Scarica JPG riepilogo</button>
+    <button class="btn secondary" onclick="resetPrint()">🔄 Reset</button>
+  </div>
+
+</div>
+
+<!-- ==================== LASER ==================== -->
+<div class="app mode-section laser-mode" id="mode-laser">
+
+  <!-- Progetto -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progetto <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Nome progetto</label>
+          <input type="text" id="l_name" placeholder="es. Targa personalizzata legno" oninput="calcLaser()">
+        </div>
+        <div class="form-group">
+          <label>% Guadagno desiderato</label>
+          <input type="number" id="l_profit_pct" value="100" min="0" oninput="calcLaser()">
+        </div>
+        <div class="form-group">
+          <label>Spese spedizione (€)</label>
+          <input type="number" id="l_shipping" value="0" min="0" step="0.1" oninput="calcLaser()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progettazione -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progettazione / File <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Ore di progettazione/preparazione file</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="l_design_h" value="0" min="0" max="999" oninput="calcLaser()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="l_design_m" value="0" min="0" max="59" oninput="calcLaser()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Costo vettoriale/file acquistato (€)</label>
+          <input type="number" id="l_file_cost" value="0" min="0" step="0.5" oninput="calcLaser()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lavorazione -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Lavorazione Laser <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid three">
+        <div class="form-group">
+          <label>Ore di lavorazione laser</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="l_laser_h" value="0" min="0" max="999" oninput="calcLaser()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="l_laser_m" value="0" min="0" max="59" oninput="calcLaser()">
+              <span>min</span>
+            </div>
+          </div>
+          <div class="info">Tempo effettivo di incisione/taglio</div>
+        </div>
+        <div class="form-group">
+          <label>N° pezzi totali</label>
+          <input type="number" id="l_pieces" value="1" min="1" oninput="calcLaser()">
+        </div>
+        <div class="form-group">
+          <label>Ore di finitura/assemblaggio</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="l_finish_h" value="0" min="0" max="999" oninput="calcLaser()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="l_finish_m" value="0" min="0" max="59" oninput="calcLaser()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Materiale -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Materiale <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Tipo materiale</label>
+          <select id="l_mat_type" onchange="calcLaser()">
+            <option value="custom">Personalizzato (inserisci costo)</option>
+            <option value="plywood3">Compensato 3mm (€8/mq)</option>
+            <option value="plywood5">Compensato 5mm (€12/mq)</option>
+            <option value="mdf3">MDF 3mm (€6/mq)</option>
+            <option value="acrylic3">Plexiglass 3mm (€20/mq)</option>
+            <option value="acrylic5">Plexiglass 5mm (€30/mq)</option>
+            <option value="leather">Pelle/similpelle (€15/mq)</option>
+            <option value="slate">Ardesia/pietra (€25/mq)</option>
+          </select>
+        </div>
+        <div class="form-group" id="l_mat_area_group">
+          <label>Superficie usata (cm²)</label>
+          <input type="number" id="l_mat_area" value="0" min="0" oninput="calcLaser()">
+          <div class="info">Larghezza × altezza del pezzo in cm²</div>
+        </div>
+        <div class="form-group" id="l_mat_cost_group">
+          <label>Costo materiale totale (€)</label>
+          <input type="number" id="l_mat_cost" value="0" min="0" step="0.5" oninput="calcLaser()">
+        </div>
+        <div class="form-group">
+          <label>Scarti/consumabili extra (€)</label>
+          <input type="number" id="l_waste_cost" value="0" min="0" step="0.1" oninput="calcLaser()">
+          <div class="info">Materiale sprecato, maschere, ecc.</div>
+        </div>
+        <div class="form-group">
+          <label>Altre spese (€)</label>
+          <input type="number" id="l_extra_cost" value="0" min="0" step="0.5" oninput="calcLaser()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risultati laser -->
+  <div class="result-box accent2" id="laser_result_box">
+    <div class="result-row">
+      <span class="lbl">Pezzi totali</span>
+      <span class="val" id="lr_pieces">0</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl">Costo progettazione/file <span style="font-size:10px;opacity:.6">(no markup)</span></span>
+      <span class="val" id="lr_design">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo macchina laser</span>
+      <span class="val" id="lr_machine">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo operatore (lavorazione + finitura)</span>
+      <span class="val" id="lr_labor">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo materiale</span>
+      <span class="val" id="lr_material">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Spedizione</span>
+      <span class="val" id="lr_shipping">€ 0.00</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl"><strong>Costo totale produzione</strong></span>
+      <span class="val" id="lr_total_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Guadagno applicato</span>
+      <span class="val profit" id="lr_profit">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">💰 PREVENTIVO TOTALE</span>
+      <span class="val" id="lr_quote_total">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">📦 Prezzo per pezzo</span>
+      <span class="val" id="lr_price_per">€ 0.00</span>
+    </div>
+  </div>
+
+  <!-- Note laser -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Note preventivo <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="warning">
+        <span>⚠️</span>
+        <span id="laser_warnings">—</span>
+      </div>
+      <div style="margin-top:12px">
+        <label style="font-size:12px;color:var(--text-muted)">Note aggiuntive</label>
+        <textarea id="l_notes" placeholder="Inserisci note per questo preventivo..." style="margin-top:6px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn laser" onclick="window.print()">🖨 Stampa/Salva PDF</button>
+    <button class="btn secondary" onclick="downloadJpg('laser')">📷 Scarica JPG riepilogo</button>
+    <button class="btn secondary" onclick="resetLaser()">🔄 Reset</button>
+  </div>
+
+</div>
+
+<!-- FAB Impostazioni -->
+<button class="fab" onclick="openSettings()" title="Impostazioni">⚙</button>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings_modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>⚙ Impostazioni</h2>
+      <button class="close-btn" onclick="closeSettings()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="settings-section-title">🖨 Stampa 3D</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Costo operatore (€/h)</label>
+          <input type="number" id="s_labor_h" value="10" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo filamento (€/kg)</label>
+          <input type="number" id="s_filament_kg" value="18" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo energia (€/kWh)</label>
+          <input type="number" id="s_energy_h" value="0.30" min="0" step="0.01">
+          <div class="info">Media stampante FDM ~150-300W</div>
+        </div>
+        <div class="form-group">
+          <label>Consumo stampante (W)</label>
+          <input type="number" id="s_printer_w" value="200" min="0" step="10">
+          <div class="info">Consumo medio effettivo</div>
+        </div>
+        <div class="form-group">
+          <label>Costo stampante (€)</label>
+          <input type="number" id="s_printer_cost" value="400" min="0" step="10">
+        </div>
+        <div class="form-group">
+          <label>Vita utile stampante (h)</label>
+          <input type="number" id="s_printer_life" value="10000" min="1" step="100">
+        </div>
+        <div class="form-group">
+          <label>Costo portachiavi (€/cad)</label>
+          <input type="number" id="s_keychain_cost" value="0.15" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Portachiavi applicabili/h</label>
+          <input type="number" id="s_keychain_per_h" value="200" min="1">
+        </div>
+        <div class="form-group">
+          <label>Costo resina (€/kg)</label>
+          <input type="number" id="s_resin_kg" value="35" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo NFC (€/cad)</label>
+          <input type="number" id="s_nfc_cost" value="0.15" min="0" step="0.01">
+        </div>
+      </div>
+
+      <div class="settings-section-title" style="margin-top:10px">⚡ Incisore Laser</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Costo operatore laser (€/h)</label>
+          <input type="number" id="s_laser_labor_h" value="12" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo energia laser (€/kWh)</label>
+          <input type="number" id="s_laser_energy_h" value="0.30" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Consumo laser (W)</label>
+          <input type="number" id="s_laser_w" value="500" min="0" step="10">
+          <div class="info">CO₂ ~400-800W, diodo ~30-80W</div>
+        </div>
+        <div class="form-group">
+          <label>Costo macchina laser (€)</label>
+          <input type="number" id="s_laser_cost" value="1200" min="0" step="50">
+        </div>
+        <div class="form-group">
+          <label>Vita utile laser (h)</label>
+          <input type="number" id="s_laser_life" value="8000" min="1" step="100">
+        </div>
+        <div class="form-group">
+          <label>Consumo lenti/tubi (€/h)</label>
+          <input type="number" id="s_laser_consumable" value="0.05" min="0" step="0.01">
+          <div class="info">Usura lenti, specchi, testa</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="saveSettings()">💾 Salva impostazioni</button>
+        <button class="btn secondary" onclick="resetSettings()">🔄 Default</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ——— SETTINGS ———
+const DEFAULTS = {
+  s_labor_h: 10, s_filament_kg: 18, s_energy_h: 0.30, s_printer_w: 200,
+  s_printer_cost: 400, s_printer_life: 10000,
+  s_keychain_cost: 0.15, s_keychain_per_h: 200,
+  s_resin_kg: 35, s_nfc_cost: 0.15,
+  s_laser_labor_h: 12, s_laser_energy_h: 0.30, s_laser_w: 500,
+  s_laser_cost: 1200, s_laser_life: 8000, s_laser_consumable: 0.05
+};
+
+function loadSettings() {
+  const saved = JSON.parse(localStorage.getItem('toys_settings') || '{}');
+  Object.entries(DEFAULTS).forEach(([k, def]) => {
+    const el = document.getElementById(k);
+    if (el) el.value = saved[k] !== undefined ? saved[k] : def;
+  });
+}
+function saveSettings() {
+  const settings = {};
+  Object.keys(DEFAULTS).forEach(k => {
+    const el = document.getElementById(k);
+    if (el) settings[k] = parseFloat(el.value) || 0;
+  });
+  localStorage.setItem('toys_settings', JSON.stringify(settings));
+  closeSettings();
+  calcPrint(); calcLaser();
+  showToast('Impostazioni salvate ✓');
+}
+function resetSettings() {
+  localStorage.removeItem('toys_settings');
+  loadSettings();
+  showToast('Impostazioni ripristinate');
+}
+function getSetting(k) { return parseFloat(document.getElementById(k)?.value) || 0; }
+function openSettings() { document.getElementById('settings_modal').classList.add('open'); }
+function closeSettings() { document.getElementById('settings_modal').classList.remove('open'); }
+
+// ——— MODE ———
+let currentMode = 'print';
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
+  document.getElementById('mode-' + mode).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[mode === 'print' ? 0 : 1].classList.add('active');
+}
+
+// ——— CARD TOGGLE ———
+function toggleCard(header) {
+  header.classList.toggle('collapsed');
+  const body = header.nextElementSibling;
+  body.classList.toggle('hidden');
+}
+
+// ——— HELPERS ———
+function v(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function hm(hId, mId) { return v(hId) + v(mId) / 60; } // ore + minuti → ore decimali
+function fmt(n) { return '€ ' + n.toFixed(2); }
+function set(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
+
+// ——— CALC PRINT ———
+function calcPrint() {
+  const plates = Math.max(1, v('p_plates'));
+  const pcsPlate = Math.max(1, v('p_pcs_plate'));
+  const printH = hm('p_print_h', 'p_print_m');
+  const filamentG = v('p_filament_g');
+  const finishH = hm('p_finish_h', 'p_finish_m');
+  const designH = hm('p_design_h', 'p_design_m');
+  const modelCost = v('p_model_cost');
+  const extra = v('p_extra');
+  const profitPct = v('p_profit_pct') / 100;
+  const shipping = v('p_shipping');
+
+  // Settings
+  const laborH = getSetting('s_labor_h');
+  const filamentKg = getSetting('s_filament_kg');
+  const energyKWh = getSetting('s_energy_h');
+  const printerW = getSetting('s_printer_w');
+  const printerCost = getSetting('s_printer_cost');
+  const printerLife = getSetting('s_printer_life');
+  const keychainCost = getSetting('s_keychain_cost');
+  const keychainPerH = getSetting('s_keychain_per_h');
+  const resinKg = getSetting('s_resin_kg');
+  const nfcCost = getSetting('s_nfc_cost');
+
+  const wearPerH = printerLife > 0 ? printerCost / printerLife : 0;
+  const filamentPerG = filamentKg / 1000;
+  const resinPerG = resinKg / 1000;
+
+  // Optionals per piatto
+  const keychainN = v('p_keychain_n');
+  const resinG = v('p_resin_g');
+  const nfcN = v('p_nfc_n');
+  const optH = hm('p_opt_h', 'p_opt_m');
+  const extraCost = v('p_extra_cost');
+
+  // Per-plate costs
+  const costMachinePerPlate = printH * (energyKWh * (printerW/1000) + wearPerH);
+  const costMaterialPerPlate = filamentG * filamentPerG;
+  const costFinishPerPlate = finishH * laborH;
+  const costOptPerPlate = (keychainN * keychainCost) +
+    (resinG * resinPerG) + (nfcN * nfcCost) +
+    (optH * laborH);
+
+  // Totals
+  const designCost = designH * laborH + modelCost;
+  const totalMachine = costMachinePerPlate * plates;
+  const totalMaterial = costMaterialPerPlate * plates;
+  const totalFinish = costFinishPerPlate * plates;
+  const totalOpt = (costOptPerPlate * plates) + extraCost;
+
+  // Progettazione = costo fisso (ti pagano €10/h, niente markup)
+  // Markup applicato solo su: macchina + materiale + finitura + optionals + spedizione
+  const prodCostWithMarkup = totalMachine + totalMaterial + totalFinish + totalOpt + shipping;
+  const profit = prodCostWithMarkup * profitPct;
+  const quoteTotal = designCost + prodCostWithMarkup + profit;
+  const prodCost = designCost + prodCostWithMarkup; // solo per display totale costi
+
+  const totalPcs = (pcsPlate * plates) + extra;
+  const pricePerPiece = totalPcs > 0 ? quoteTotal / totalPcs : 0;
+
+  // Display
+  set('r_total_pcs', totalPcs);
+  set('r_design_cost', fmt(designCost));
+  set('r_machine_cost', fmt(totalMachine));
+  set('r_material_cost', fmt(totalMaterial));
+  set('r_finish_cost', fmt(totalFinish));
+  set('r_opt_cost', fmt(totalOpt));
+  set('r_shipping', fmt(shipping));
+  set('r_total_cost', fmt(prodCost));
+  set('r_profit', fmt(profit));
+  set('r_quote_total', fmt(quoteTotal));
+  set('r_price_per', fmt(pricePerPiece));
+
+  // Plate detail
+  const tbody = document.getElementById('plate_rows');
+  if (tbody) {
+    tbody.innerHTML = '';
+    for (let i = 1; i <= plates; i++) {
+      const plateProdBase = costMachinePerPlate + costMaterialPerPlate + costFinishPerPlate + costOptPerPlate + (shipping / plates);
+      const plateDesign = designCost / plates;
+      const plateQuote = plateDesign + plateProdBase * (1 + profitPct);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>Piatto ${i}</td><td>${fmt(plateDesign + plateProdBase)}</td><td>${fmt(plateQuote)}</td><td>${pcsPlate} pz</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // Warnings
+  const warns = [];
+  if (extra > 0) warns.push(`⚡ Hai aggiunto ${extra} pezzi di scorta (non venduti, ma conteggiati nel costo).`);
+  if (profitPct < 0.5) warns.push('⚠️ Margine molto basso! Considera di aumentare la % guadagno.');
+  if (filamentG === 0 && printH > 0) warns.push('⚠️ Ore di stampa inserite ma filamento 0g: verifica i dati.');
+  if (printH === 0 && plates > 0) warns.push('ℹ️ Ore di stampa non inserite: il costo macchina sarà 0.');
+  warns.push('📦 Ricorda: aggiungi 1-2 pezzi extra per ogni oggetto come scorta di sicurezza.');
+  warns.push('📐 Preventiva sempre una stampa senza colori per i controlli dimensionali.');
+  document.getElementById('print_warnings').innerHTML = warns.join('<br>');
+}
+
+// ——— CALC LASER ———
+const LASER_MATS = {
+  plywood3: 0.08, plywood5: 0.12, mdf3: 0.06,
+  acrylic3: 0.20, acrylic5: 0.30, leather: 0.15, slate: 0.25
+};
+function calcLaser() {
+  const laserH = hm('l_laser_h', 'l_laser_m');
+  const finishH = hm('l_finish_h', 'l_finish_m');
+  const designH = hm('l_design_h', 'l_design_m');
+  const fileCost = v('l_file_cost');
+  const pieces = Math.max(1, v('l_pieces'));
+  const profitPct = v('l_profit_pct') / 100;
+  const shipping = v('l_shipping');
+  const wasteCost = v('l_waste_cost');
+  const extraCost = v('l_extra_cost');
+
+  const matType = document.getElementById('l_mat_type').value;
+  const isCustom = matType === 'custom';
+  document.getElementById('l_mat_area_group').style.display = isCustom ? 'none' : '';
+  document.getElementById('l_mat_cost_group').style.display = isCustom ? '' : 'none';
+
+  let materialCost = 0;
+  if (isCustom) {
+    materialCost = v('l_mat_cost');
+  } else {
+    const area_cm2 = v('l_mat_area');
+    const pricePerCm2 = LASER_MATS[matType] || 0;
+    materialCost = area_cm2 * pricePerCm2 / 100; // €/m² → €/cm²: (price/m²)/10000*cm²
+    // Actually: price is €/m², area in cm², so: price/m² = price/10000 per cm²
+    materialCost = area_cm2 * (LASER_MATS[matType] / 10000) * pieces;
+    // Let me recalc: LASER_MATS is €/m², 1m²=10000cm²
+    // material cost = (area_cm2 * pieces * pricePerM2) / 10000
+  }
+
+  // Settings
+  const laborH = getSetting('s_laser_labor_h');
+  const energyKWh = getSetting('s_laser_energy_h');
+  const laserW = getSetting('s_laser_w');
+  const laserCost = getSetting('s_laser_cost');
+  const laserLife = getSetting('s_laser_life');
+  const consumable = getSetting('s_laser_consumable');
+
+  const wearPerH = laserLife > 0 ? laserCost / laserLife : 0;
+  const energyCostPerH = energyKWh * (laserW / 1000);
+
+  const designCost = designH * laborH + fileCost;
+  const machineCost = laserH * (energyCostPerH + wearPerH + consumable);
+  const laborCost = (laserH + finishH) * laborH;
+
+  if (!isCustom) {
+    const area_cm2 = v('l_mat_area');
+    materialCost = area_cm2 * pieces * (LASER_MATS[matType] / 10000);
+  }
+
+  // Progettazione = costo fisso senza markup
+  const prodCostWithMarkup = machineCost + laborCost + materialCost + wasteCost + extraCost + shipping;
+  const profit = prodCostWithMarkup * profitPct;
+  const quoteTotal = designCost + prodCostWithMarkup + profit;
+  const prodCost = designCost + prodCostWithMarkup;
+  const pricePerPiece = pieces > 0 ? quoteTotal / pieces : 0;
+
+  set('lr_pieces', pieces);
+  set('lr_design', fmt(designCost));
+  set('lr_machine', fmt(machineCost));
+  set('lr_labor', fmt(laborCost));
+  set('lr_material', fmt(materialCost + wasteCost));
+  set('lr_shipping', fmt(shipping));
+  set('lr_total_cost', fmt(prodCost));
+  set('lr_profit', fmt(profit));
+  set('lr_quote_total', fmt(quoteTotal));
+  set('lr_price_per', fmt(pricePerPiece));
+
+  const warns = [];
+  if (laserH === 0) warns.push('ℹ️ Ore di lavorazione laser non inserite.');
+  if (profitPct < 0.5) warns.push('⚠️ Margine molto basso.');
+  warns.push('🔥 Per materiali con vernici/plastiche, verifica che siano sicuri per la lavorazione laser.');
+  warns.push('📐 Considera il kerf (taglio del laser) nei tuoi calcoli di precisione.');
+  warns.push('🧪 Fai sempre un test su un pezzo di scarto prima di lavorare il materiale finale.');
+  document.getElementById('laser_warnings').innerHTML = warns.join('<br>');
+}
+
+// ——— RESET ———
+function resetPrint() {
+  ['p_name','p_profit_pct','p_shipping','p_design_h','p_design_m','p_model_cost',
+   'p_print_h','p_print_m','p_filament_g','p_finish_h','p_finish_m',
+   'p_pcs_plate','p_plates','p_extra',
+   'p_keychain_n','p_resin_g','p_nfc_n','p_opt_h','p_opt_m','p_extra_cost','p_notes']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === 'p_profit_pct') el.value = 100;
+      else if (id === 'p_pcs_plate' || id === 'p_plates') el.value = 1;
+      else if (el.type === 'text' || el.tagName === 'TEXTAREA') el.value = '';
+      else el.value = 0;
+    });
+  calcPrint();
+}
+function resetLaser() {
+  ['l_name','l_profit_pct','l_shipping','l_design_h','l_design_m','l_file_cost',
+   'l_laser_h','l_laser_m','l_pieces','l_finish_h','l_finish_m',
+   'l_mat_area','l_mat_cost','l_waste_cost','l_extra_cost','l_notes']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === 'l_profit_pct') el.value = 100;
+      else if (id === 'l_pieces') el.value = 1;
+      else if (el.type === 'text' || el.tagName === 'TEXTAREA') el.value = '';
+      else el.value = 0;
+    });
+  document.getElementById('l_mat_type').value = 'custom';
+  calcLaser();
+}
+
+// ——— TOAST ———
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;transition:opacity .3s;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2500);
+}
+
+// ——— JPG DOWNLOAD ———
+async function downloadJpg(mode) {
+  const boxId = mode === 'print' ? 'print_result_box' : 'laser_result_box';
+  const box = document.getElementById(boxId);
+  const projectName = document.getElementById(mode === 'print' ? 'p_name' : 'l_name').value || 'preventivo';
+
+  if (typeof html2canvas === 'undefined') {
+    showToast('Caricamento libreria immagine...');
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  showToast('Generazione immagine...');
+  // Temporarily add padding/bg for the snapshot
+  const prev = box.style.cssText;
+  box.style.padding = '24px';
+
+  try {
+    const canvas = await html2canvas(box, {
+      backgroundColor: mode === 'print' ? '#1f1710' : '#101a2a',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    });
+    box.style.cssText = prev;
+
+    const link = document.createElement('a');
+    link.download = `preventivo_${projectName.replace(/\s+/g,'_')}.jpg`;
+    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+    showToast('JPG scaricato ✓');
+  } catch(e) {
+    box.style.cssText = prev;
+    showToast('Errore generazione immagine');
+  }
+}
+
+// ——— INIT ———
+loadSettings();
+calcPrint();
+calcLaser();
+
+// Close modal clicking outside
+document.getElementById('settings_modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+</script>
+</body>
+</html>
