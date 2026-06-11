@@ -1,1 +1,97 @@
-[]
+[
+  {
+    "print": {
+      "p_profit_pct": "100",
+      "p_shipping": "0",
+      "p_design_h": "0",
+      "p_design_m": "50",
+      "p_model_cost": "10",
+      "p_print_h": "0",
+      "p_print_m": "30",
+      "p_filament_g": "100",
+      "p_finish_h": "0",
+      "p_finish_m": "0",
+      "p_pcs_plate": "10",
+      "p_plates": "10",
+      "p_extra": "2",
+      "p_keychain_n": "10",
+      "p_resin_g": "0",
+      "p_nfc_n": "10",
+      "p_opt_h": "0",
+      "p_opt_m": "0",
+      "p_extra_cost": "0",
+      "p_notes": ""
+    },
+    "laser": {
+      "l_profit_pct": "100",
+      "l_shipping": "0",
+      "l_design_h": "0",
+      "l_design_m": "15",
+      "l_file_cost": "0",
+      "l_laser_h": "0",
+      "l_laser_m": "5",
+      "l_pieces": "100",
+      "l_finish_h": "0",
+      "l_finish_m": "0",
+      "l_mat_type": "custom",
+      "l_mat_area": "0",
+      "l_mat_cost": "1.5",
+      "l_waste_cost": "0",
+      "l_extra_cost": "0.5",
+      "l_notes": ""
+    },
+    "split": {
+      "sp_print": "182.00",
+      "sp_laser": "229.06",
+      "sp_other": "0"
+    },
+    "lavP": [
+      {
+        "sel": "Caricamento file su chiavetta/SD",
+        "custom": "",
+        "qty": "100",
+        "h": "0",
+        "m": "2",
+        "mat": "0"
+      }
+    ],
+    "lavL": [
+      {
+        "sel": "Confezionamento / imballaggio",
+        "custom": "",
+        "qty": "100",
+        "h": "0",
+        "m": "3",
+        "mat": "0.5"
+      }
+    ],
+    "spPersons": [
+      {
+        "name": "Balzo",
+        "pct": "40",
+        "c3": "50",
+        "cl": "50",
+        "co": "10"
+      },
+      {
+        "name": "Leo",
+        "pct": "40",
+        "c3": "30",
+        "cl": "10",
+        "co": "5"
+      },
+      {
+        "name": "Den",
+        "pct": "20",
+        "c3": "0",
+        "cl": "0",
+        "co": "15"
+      }
+    ],
+    "name": "Kuzu",
+    "printTotal": 182,
+    "laserTotal": 229.06,
+    "savedAt": 1781185219952,
+    "id": 1781185219952
+  }
+]
