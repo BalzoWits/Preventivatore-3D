@@ -1344,21 +1344,9 @@
         <button class="btn secondary" onclick="resetSettings()">🔄 Default</button>
       </div>
 
-      <div class="settings-section-title" style="margin-top:10px">☁️ Sincronizzazione JSONBin</div>
-      <div class="info" style="margin-bottom:8px">I preventivi vengono salvati su JSONBin.io — accessibili da qualsiasi dispositivo. Gratuito, nessun problema di compatibilità.</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>API Key</label>
-          <input type="password" id="jb_apikey" placeholder="$2a$10$...">
-          <div class="info">jsonbin.io → Registrati gratis → Dashboard → API Keys → Secret Key</div>
-        </div>
-        <div class="form-group full">
-          <label>Bin ID <span style="font-weight:400;opacity:.6">(lascia vuoto la prima volta — verrà creato automaticamente)</span></label>
-          <input type="text" id="jb_binid" placeholder="verrà compilato automaticamente al primo salvataggio">
-        </div>
-      </div>
+      <div class="settings-section-title" style="margin-top:10px">☁️ Sincronizzazione Cloud</div>
+      <div class="info" style="margin-bottom:8px">I preventivi vengono sincronizzati automaticamente su cloud — accessibili da qualsiasi dispositivo con il link.</div>
       <div class="btn-row">
-        <button class="btn" onclick="saveJbConfig()">💾 Salva config</button>
         <button class="btn secondary" onclick="testJbConnection()">🔌 Testa connessione</button>
       </div>
       <div id="jb_status" style="font-size:12px;margin-top:6px;color:var(--text-muted)"></div>
@@ -2245,26 +2233,12 @@ async function downloadSplitJpg() {
 }
 
 // ——— JSONBIN SYNC ———
-const JB_CONFIG_KEY = 'toys_jb_config';
-const JB_BASE = 'https://api.jsonbin.io/v3';
+const JB_BASE   = 'https://api.jsonbin.io/v3';
+const JB_APIKEY = '$2a$10$jZHnp633kJPCs5xzmnOPFuIjmrJyb/0WV70bTsVE2Ccr.gGrVDchO';
+let   JB_BINID  = '6a2abe96f5f4af5e29df53e5';
 
-function getJbConfig() {
-  try { return JSON.parse(localStorage.getItem(JB_CONFIG_KEY) || '{}'); } catch { return {}; }
-}
-function saveJbConfig() {
-  const cfg = {
-    apikey: document.getElementById('jb_apikey')?.value?.trim() || '',
-    binid:  document.getElementById('jb_binid')?.value?.trim()  || '',
-  };
-  localStorage.setItem(JB_CONFIG_KEY, JSON.stringify(cfg));
-  showToast('Config salvata ✓');
-  setJbStatus('Config salvata. Clicca "Testa connessione" per verificare.', 'var(--text-muted)');
-}
-function loadJbConfigToForm() {
-  const cfg = getJbConfig();
-  if (cfg.apikey) document.getElementById('jb_apikey').value = cfg.apikey;
-  if (cfg.binid)  document.getElementById('jb_binid').value  = cfg.binid;
-}
+function saveJbConfig() { showToast('Configurazione fissa nel codice ✓'); }
+function loadJbConfigToForm() {}
 function setJbStatus(msg, color) {
   const el = document.getElementById('jb_status');
   if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; }
@@ -2273,34 +2247,22 @@ function setSyncStatus(msg, color) {
   const el = document.getElementById('gh_sync_status');
   if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; }
 }
+function getJbConfig() { return { apikey: JB_APIKEY, binid: JB_BINID }; }
 
 async function testJbConnection() {
-  const cfg = getJbConfig();
-  if (!cfg.apikey) { setJbStatus('⚠️ Inserisci la API Key prima', 'var(--yellow)'); return; }
   setJbStatus('Connessione in corso…', 'var(--text-muted)');
   try {
-    const res = await fetch(`${JB_BASE}/b`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apikey, 'X-Bin-Name': 'test' },
-      body: JSON.stringify({ test: true })
+    const res = await fetch(`${JB_BASE}/b/${JB_BINID}/latest`, {
+      headers: { 'X-Master-Key': JB_APIKEY }
     });
-    if (res.ok) {
-      const data = await res.json();
-      // delete test bin
-      await fetch(`${JB_BASE}/b/${data.metadata.id}`, { method: 'DELETE', headers: { 'X-Master-Key': cfg.apikey } });
-      setJbStatus('✅ Connessione riuscita! API Key valida.', 'var(--green)');
-    } else {
-      const err = await res.json();
-      setJbStatus(`❌ Errore ${res.status}: ${err.message||'API Key non valida'}`, 'var(--red)');
-    }
+    if (res.ok) setJbStatus('✅ Connessione riuscita!', 'var(--green)');
+    else setJbStatus(`❌ Errore ${res.status}`, 'var(--red)');
   } catch(e) { setJbStatus('❌ Errore di rete: ' + e.message, 'var(--red)'); }
 }
 
 async function jbRead() {
-  const cfg = getJbConfig();
-  if (!cfg.apikey || !cfg.binid) return null;
-  const res = await fetch(`${JB_BASE}/b/${cfg.binid}/latest`, {
-    headers: { 'X-Master-Key': cfg.apikey }
+  const res = await fetch(`${JB_BASE}/b/${JB_BINID}/latest`, {
+    headers: { 'X-Master-Key': JB_APIKEY }
   });
   if (!res.ok) throw new Error(`Read error ${res.status}`);
   const data = await res.json();
@@ -2308,29 +2270,9 @@ async function jbRead() {
 }
 
 async function jbWrite(content) {
-  const cfg = getJbConfig();
-  if (!cfg.apikey) throw new Error('API Key mancante');
-
-  if (!cfg.binid) {
-    // Create new bin
-    const res = await fetch(`${JB_BASE}/b`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apikey, 'X-Bin-Name': 'Preventivatore TOYS', 'X-Bin-Private': 'true' },
-      body: JSON.stringify(content)
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
-    const data = await res.json();
-    // Save bin ID
-    cfg.binid = data.metadata.id;
-    localStorage.setItem(JB_CONFIG_KEY, JSON.stringify(cfg));
-    document.getElementById('jb_binid').value = cfg.binid;
-    return;
-  }
-
-  // Update existing bin
-  const res = await fetch(`${JB_BASE}/b/${cfg.binid}`, {
+  const res = await fetch(`${JB_BASE}/b/${JB_BINID}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apikey },
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JB_APIKEY },
     body: JSON.stringify(content)
   });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
@@ -2430,8 +2372,6 @@ function applyState(state) {
 async function saveQuote() {
   const name = document.getElementById('quote_name')?.value?.trim();
   if (!name) { showToast('Inserisci un nome per il preventivo'); document.getElementById('quote_name').focus(); return; }
-  const cfg = getJbConfig();
-  const hasJb = !!cfg.apikey;
 
   const state = collectCurrentState();
   const now = Date.now();
@@ -2451,13 +2391,11 @@ async function saveQuote() {
   setQuotesCache(qs);
   renderSidebar();
 
-  if (!hasJb) { showToast('Salvato in locale ✓ (JSONBin non configurato)'); return; }
-
-  setSyncStatus('Salvataggio su cloud…', 'var(--text-muted)');
+  setSyncStatus('Salvataggio…', 'var(--text-muted)');
   try {
     await jbWrite(qs);
     setSyncStatus(`☁️ Sincronizzato ${new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`, 'var(--green)');
-    showToast('Salvato su cloud ✓');
+    showToast('Salvato ✓');
   } catch(e) {
     setSyncStatus('⚠️ Errore cloud: ' + e.message, 'var(--red)');
     showToast('Errore cloud — salvato solo in locale');
@@ -2499,11 +2437,8 @@ async function deleteQuote(id) {
   setQuotesCache(qs);
   if (currentQuoteId === id) currentQuoteId = null;
   renderSidebar();
-  const cfg = getJbConfig();
-  if (cfg.apikey && cfg.binid) {
-    try { await jbWrite(qs); showToast('Eliminato e sincronizzato ✓'); }
-    catch(e) { showToast('Eliminato in locale (errore cloud)'); }
-  } else { showToast('Preventivo eliminato'); }
+  try { await jbWrite(qs); showToast('Eliminato ✓'); }
+  catch(e) { showToast('Eliminato in locale (errore cloud)'); }
 }
 
 function newQuote() {
