@@ -1,0 +1,2615 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preventivatore TOYS</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #ff6b35;
+    --accent2: #3d9eff;
+    --text: #f0f0f0;
+    --text-muted: #888;
+    --green: #4caf7d;
+    --red: #e05252;
+    --yellow: #f5c842;
+    --radius: 10px;
+    --font: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--accent);
+  }
+  header .mode-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .tab-btn.laser.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+  }
+  .tab-btn.split.active {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  /* MAIN LAYOUT */
+  .app { max-width: 900px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  /* SECTION CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 12px 16px;
+    background: var(--surface2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .card-header .toggle-icon { transition: transform .2s; }
+  .card-header.collapsed .toggle-icon { transform: rotate(-90deg); }
+  .card-body { padding: 16px; }
+  .card-body.hidden { display: none; }
+
+  /* FORM GRID */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  input[type=number], input[type=text], select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: var(--font);
+    width: 100%;
+    transition: border-color .15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .laser-mode input:focus, .laser-mode select:focus {
+    border-color: var(--accent2);
+  }
+  input.highlight { border-color: var(--accent); background: #1f1710; }
+
+  /* RESULT BOX */
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .result-box.accent { border-color: var(--accent); background: #1f1710; }
+  .result-box.accent2 { border-color: var(--accent2); background: #101a2a; }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-row .lbl { color: var(--text-muted); }
+  .result-row .val { font-weight: 600; }
+  .result-row.big .lbl { font-size: 16px; font-weight: 700; color: var(--text); }
+  .result-row.big .val { font-size: 24px; font-weight: 800; color: var(--accent); }
+  .laser-mode .result-row.big .val { color: var(--accent2); }
+  .result-row.profit .val { color: var(--green); }
+
+  /* QUOTE TABLE */
+  .quote-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .quote-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .quote-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .quote-table tr:last-child td { border-bottom: none; }
+  .quote-table input[type=number] {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--border);
+    border-radius: 0;
+    padding: 2px 4px;
+    width: 80px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 11px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn.secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn.laser { background: var(--accent2); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge.green { background: var(--green); }
+  .badge.yellow { background: var(--yellow); color: #000; }
+
+  /* SETTINGS MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    background: var(--surface2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+  .modal-header h2 { font-size: 16px; }
+  .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .settings-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* SETTINGS FAB */
+  .fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99;
+    transition: background .15s;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  }
+  .fab:hover { background: var(--surface); color: var(--text); }
+
+  /* WARNINGS */
+  .warning {
+    background: #2a1f00;
+    border: 1px solid #5a4000;
+    border-radius: 7px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--yellow);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .warning span { line-height: 1.5; }
+
+  /* PRINT BUTTON */
+  .print-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 9px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* NOTES */
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .form-grid, .form-grid.three { grid-template-columns: 1fr 1fr; }
+    header h1 { font-size: 15px; }
+    .tab-btn { padding: 5px 10px; font-size: 12px; }
+    .result-row.big .val { font-size: 20px; }
+  }
+  @media (max-width: 380px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  /* HIDDEN */
+  .mode-section { display: none; }
+  .mode-section.active { display: block; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* PROFIT BAR */
+  .profit-bar-wrap { margin-top: 6px; }
+  .profit-bar-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .profit-bar-track { background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
+  .profit-bar-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .3s; min-width: 0; }
+
+  /* INFO TOOLTIP */
+  .info { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+
+  /* LAVORAZIONI EXTRA */
+  .lav-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .lav-item .lav-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .lav-item .lav-name-wrap {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .lav-item select.lav-select {
+    flex: 1;
+  }
+  .lav-item input.lav-custom {
+    flex: 1;
+    display: none;
+  }
+  .lav-item .lav-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: end;
+  }
+  .lav-item .lav-fields .form-group { margin: 0; }
+  .remove-lav {
+    background: none;
+    border: 1px solid #444;
+    color: var(--red);
+    border-radius: 5px;
+    padding: 4px 9px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .remove-lav:hover { background: #2a1010; }
+  .add-lav-btn {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    border-radius: 7px;
+    padding: 9px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 13px;
+    margin-top: 4px;
+    transition: all .15s;
+  }
+  .add-lav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .laser-mode .add-lav-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  @media (max-width: 600px) {
+    .lav-item .lav-fields { grid-template-columns: 1fr 1fr; }
+  }
+  .time-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .time-inputs .sub {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .time-inputs .sub span {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background: #fff !important; color: #111 !important; font-size: 12px; }
+    header { position: static; background: #fff !important; border-bottom: 2px solid #333 !important; }
+    header h1 { color: #333 !important; }
+    .fab, .btn-row, .mode-tabs { display: none !important; }
+    /* Hide the inactive mode entirely */
+    .mode-section:not(.active) { display: none !important; }
+    /* Cards: never break inside */
+    .card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc !important; background: #fff !important; margin-bottom: 10px; }
+    .card-header { background: #eee !important; color: #333 !important; }
+    /* Force all cards open for print */
+    .card-body.hidden { display: block !important; }
+    .card-header.collapsed .toggle-icon { transform: none !important; }
+    /* Result box */
+    .result-box { break-inside: avoid; page-break-inside: avoid; border: 2px solid #333 !important; background: #fff !important; }
+    .result-box.accent, .result-box.accent2 { background: #f9f9f9 !important; }
+    .result-row .lbl { color: #444 !important; }
+    .result-row.big .val { color: #111 !important; font-size: 18px !important; }
+    .result-row.profit .val { color: #2a7a4a !important; }
+    /* Inputs in print */
+    input, select, textarea {
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px solid #ccc !important;
+      border-radius: 0 !important;
+      color: #111 !important;
+      padding: 2px 4px !important;
+    }
+    .info { color: #888 !important; }
+    .warning { background: #fffbe6 !important; border-color: #e6c200 !important; color: #665500 !important; }
+    /* Page setup */
+    @page { margin: 15mm 12mm; }
+  }
+  /* DETAIL TABLE */
+  .dtable { width:100%; border-collapse:collapse; font-size:13px; }
+  .dtable th { text-align:left; padding:8px 10px; font-size:11px; text-transform:uppercase; letter-spacing:.7px; color:var(--text-muted); background:var(--surface2); border-bottom:1px solid var(--border); }
+  .dtable th:last-child { text-align:right; }
+  .dtable td { padding:9px 10px; border-bottom:1px solid #1e1e1e; vertical-align:top; line-height:1.4; }
+  .dtable td:last-child { text-align:right; font-weight:600; white-space:nowrap; }
+  .dtable .dsub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .dtable tr.dhead td { background:var(--surface2); font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text-muted); padding:6px 10px; }
+  .dtable tr.dtotal td { font-weight:700; background:var(--surface2); border-top:1px solid var(--border); }
+  .dtable tr.dgrand td { font-weight:800; font-size:15px; color:var(--accent); background:#1f1710; border-top:2px solid var(--accent); }
+  .dtable tr.dgrand.laser td { color:var(--accent2); background:#101a2a; border-top-color:var(--accent2); }
+  .dtable tr.dsub-grand td { font-weight:700; font-size:13px; color:var(--accent); background:#1f1710; }
+  .dtable tr.dsub-grand.laser td { color:var(--accent2); background:#101a2a; }
+  /* QUOTE NAME IN HEADER */
+  .header-name-wrap {
+    display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; max-width: 260px;
+  }
+  .header-name-wrap input {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 13px; padding: 6px 10px; width: 100%;
+    font-family: var(--font);
+  }
+  .header-name-wrap input:focus { outline: none; border-color: var(--accent); }
+  .header-name-wrap input::placeholder { color: var(--text-muted); }
+
+  /* HISTORY SIDEBAR */
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 150;
+  }
+  .sidebar-overlay.open { display: block; }
+  .sidebar {
+    position: fixed; top: 0; right: -320px; width: 300px; height: 100%;
+    background: var(--surface); border-left: 1px solid var(--border);
+    z-index: 151; transition: right .25s ease; display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar.open { right: 0; }
+  .sidebar-head {
+    padding: 14px 16px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .sidebar-head h3 { font-size: 14px; font-weight: 700; }
+  .sidebar-body { flex: 1; overflow-y: auto; padding: 10px; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .quote-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: border-color .15s;
+  }
+  .quote-item:hover { border-color: var(--accent); }
+  .quote-item.active { border-color: var(--accent); background: #1f1710; }
+  .qi-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qi-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .qi-totals { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .qi-totals span { color: var(--accent); font-weight: 600; }
+  .qi-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .qi-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 5px;
+    color: var(--text-muted); font-size: 11px; padding: 3px 8px; cursor: pointer; transition: all .15s;
+  }
+  .qi-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .qi-btn.del:hover { border-color: var(--red); color: var(--red); }
+  .sidebar-empty { color: var(--text-muted); font-size: 13px; text-align: center; padding: 30px 10px; }
+  .history-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+    border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px;
+    display: flex; align-items: center; gap: 6px; transition: all .15s; white-space: nowrap;
+  }
+  .history-btn:hover { border-color: var(--accent); color: var(--text); }
+  @media (max-width: 600px) {
+    .header-name-wrap { max-width: 140px; }
+    .sidebar { width: 280px; right: -280px; }
+  }
+  .sp-summary {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px;
+  }
+  .sp-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 12px; text-align: center;
+  }
+  .sp-box.green { border-color: var(--green); background: #0c1f12; }
+  .sp-box.orange { border-color: var(--accent); background: #1f1710; }
+  .sp-box.blue { border-color: var(--accent2); background: #101a2a; }
+  .sp-box .sb-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .7px; }
+  .sp-box .sb-val { font-size: 21px; font-weight: 800; margin-top: 5px; }
+  .sp-box.green .sb-val { color: var(--green); }
+  .sp-box.orange .sb-val { color: var(--accent); }
+  .sp-box.blue .sb-val { color: var(--accent2); }
+
+  .pct-track-wrap { margin-bottom: 6px; }
+  .pct-track { height: 10px; background: var(--surface2); border-radius: 5px; overflow: hidden; display: flex; margin-bottom: 4px; }
+  .pct-track-fill { height: 100%; transition: width .3s; min-width: 0; }
+  .pct-track-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
+
+  .pct-warning {
+    background: #2a1f00; border: 1px solid #5a4000; border-radius: 7px;
+    padding: 8px 14px; font-size: 13px; color: var(--yellow);
+    margin-bottom: 12px; display: none;
+  }
+  .pct-warning.visible { display: block; }
+
+  .person-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
+  }
+  .person-head {
+    background: var(--surface2); padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .person-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .person-head input.ph-name {
+    background: transparent; border: none;
+    border-bottom: 1px solid var(--border); border-radius: 0;
+    color: var(--text); font-size: 15px; font-weight: 700;
+    padding: 2px 5px; width: 130px; font-family: var(--font);
+  }
+  .person-head input.ph-name:focus { outline: none; border-color: var(--green); }
+  .ph-pct { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+  .ph-pct label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+  .ph-pct input { width: 64px; text-align: right; font-weight: 700; }
+  .ph-pct .sym { color: var(--text-muted); }
+  .remove-person {
+    background: none; border: 1px solid #444; color: var(--red);
+    border-radius: 5px; padding: 3px 9px; cursor: pointer; font-size: 14px; line-height: 1;
+  }
+  .remove-person:hover { background: #2a1010; }
+
+  .person-body { padding: 14px; }
+  .person-costs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .person-mini-result {
+    background: var(--surface2); border-radius: 8px; padding: 12px 14px;
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; text-align: center;
+  }
+  .pmr-lbl { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+  .pmr-val { font-size: 15px; font-weight: 800; }
+  .pmr-val.green { color: var(--green); }
+  .pmr-val.red { color: var(--red); }
+  .pmr-val.blue { color: var(--accent2); }
+
+  .add-person-btn {
+    background: transparent; border: 1px dashed var(--border); color: var(--text-muted);
+    border-radius: 7px; padding: 10px; width: 100%; cursor: pointer;
+    font-size: 13px; transition: all .15s; margin-bottom: 14px;
+  }
+  .add-person-btn:hover { border-color: var(--green); color: var(--green); }
+
+  .sp-result-box {
+    background: var(--surface); border: 1px solid var(--green);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
+  }
+  .sp-result-head {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--text-muted); margin-bottom: 14px;
+  }
+  .sp-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 0; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap;
+  }
+  .sp-row:last-child { border-bottom: none; }
+  .sp-row-name { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 7px; }
+  .sp-row-detail { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+  .sp-row-amount { text-align: right; }
+  .sp-row-amount .big { font-size: 21px; font-weight: 800; }
+  .sp-row-amount .small { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .sp-total-check {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 12px; margin-top: 6px; border-top: 2px solid var(--border); font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .sp-summary { grid-template-columns: 1fr 1fr; }
+    .person-costs { grid-template-columns: 1fr 1fr; }
+    .person-mini-result { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 380px) {
+    .sp-summary { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🖨 TOYS</h1>
+  <div class="header-name-wrap">
+    <input type="text" id="quote_name" placeholder="Nome preventivo…" oninput="onQuoteNameInput()">
+  </div>
+  <div class="mode-tabs">
+    <button class="tab-btn active" onclick="setMode('print')">🖨 Stampa 3D</button>
+    <button class="tab-btn laser" onclick="setMode('laser')">⚡ Laser</button>
+    <button class="tab-btn split" onclick="setMode('split')">💸 Rimborsi</button>
+  </div>
+  <button class="history-btn" onclick="openSidebar()">📂 Preventivi <span id="history_count" style="background:var(--accent);color:#fff;border-radius:10px;padding:1px 6px;font-size:11px">0</span></button>
+</header>
+
+<!-- ==================== STAMPA 3D ==================== -->
+<div class="app mode-section active" id="mode-print">
+
+  <!-- Progetto -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progetto <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>% Guadagno desiderato</label>
+          <input type="number" id="p_profit_pct" value="100" min="0" oninput="calcPrint()">
+          <div class="info">100% = raddoppi il costo</div>
+        </div>
+        <div class="form-group">
+          <label>Spese spedizione (€)</label>
+          <input type="number" id="p_shipping" value="0" min="0" step="0.1" oninput="calcPrint()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progettazione -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progettazione CAD <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Ore di progettazione</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_design_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_design_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Costo modello acquistato (€)</label>
+          <input type="number" id="p_model_cost" value="0" min="0" step="0.5" oninput="calcPrint()">
+          <div class="info">Solo se hai comprato un modello già fatto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stampa -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Parametri Stampa <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid three">
+        <div class="form-group">
+          <label>Ore di stampa (per piatto)</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_print_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_print_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Filamento per piatto (g)</label>
+          <input type="number" id="p_filament_g" value="0" min="0" step="1" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Ore finitura (per piatto)</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_finish_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_finish_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+          <div class="info">Supporti, levigatura, ecc.</div>
+        </div>
+        <div class="form-group">
+          <label>Pezzi per piatto</label>
+          <input type="number" id="p_pcs_plate" value="1" min="1" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Numero piatti totali</label>
+          <input type="number" id="p_plates" value="1" min="1" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Pezzi extra (+scorta)</label>
+          <input type="number" id="p_extra" value="0" min="0" oninput="calcPrint()">
+          <div class="info">Pezzi aggiuntivi per sicurezza</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optionals -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Optionals (portachiavi, resina, NFC) <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>N° portachiavi (per piatto)</label>
+          <input type="number" id="p_keychain_n" value="0" min="0" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Resina (g per piatto)</label>
+          <input type="number" id="p_resin_g" value="0" min="0" step="0.5" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>N° NFC (per piatto)</label>
+          <input type="number" id="p_nfc_n" value="0" min="0" oninput="calcPrint()">
+        </div>
+        <div class="form-group">
+          <label>Ore applicazione optionals (per piatto)</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="p_opt_h" value="0" min="0" max="999" oninput="calcPrint()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="p_opt_m" value="0" min="0" max="59" oninput="calcPrint()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Altre spese extra (€ totali)</label>
+          <input type="number" id="p_extra_cost" value="0" min="0" step="0.5" oninput="calcPrint()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lavorazioni extra -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Lavorazioni extra <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="info" style="margin-bottom:10px">Aggiungi lavorazioni aggiuntive (es. caricare file su chiavetta, assemblaggio, confezionamento…). Il costo orario operatore viene applicato con markup.</div>
+      <div id="p_lav_list"></div>
+      <button class="add-lav-btn" onclick="addLav('p')">＋ Aggiungi lavorazione</button>
+    </div>
+  </div>
+
+  <!-- Risultati -->
+  <div class="result-box accent" id="print_result_box">
+    <div class="result-row">
+      <span class="lbl">Pezzi totali prodotti</span>
+      <span class="val" id="r_total_pcs">0</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl">Costo progettazione <span style="font-size:10px;opacity:.6">(no markup)</span></span>
+      <span class="val" id="r_design_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo macchina (tot piatti)</span>
+      <span class="val" id="r_machine_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo materiale</span>
+      <span class="val" id="r_material_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo finitura</span>
+      <span class="val" id="r_finish_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo optionals</span>
+      <span class="val" id="r_opt_cost">€ 0.00</span>
+    </div>
+    <div class="result-row" id="r_lav_row" style="display:none">
+      <span class="lbl">Lavorazioni extra</span>
+      <span class="val" id="r_lav_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Spedizione</span>
+      <span class="val" id="r_shipping">€ 0.00</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl"><strong>Costo totale produzione</strong></span>
+      <span class="val" id="r_total_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Guadagno applicato</span>
+      <span class="val profit" id="r_profit">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">💰 PREVENTIVO TOTALE</span>
+      <span class="val" id="r_quote_total">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">📦 Prezzo per pezzo (CAD1)</span>
+      <span class="val" id="r_price_per">€ 0.00</span>
+    </div>
+  </div>
+
+  <!-- Dettaglio per piatto -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Dettaglio per piatto <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden" id="plate_detail">
+      <table class="quote-table">
+        <thead>
+          <tr>
+            <th>Piatto</th>
+            <th>Costo prod.</th>
+            <th>Preventivo</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody id="plate_rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Note -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Note preventivo <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="warning">
+        <span>⚠️</span>
+        <span id="print_warnings">—</span>
+      </div>
+      <div style="margin-top:12px">
+        <label style="font-size:12px;color:var(--text-muted)">Note aggiuntive</label>
+        <textarea id="p_notes" placeholder="Inserisci note per questo preventivo..." style="margin-top:6px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="window.print()">🖨 Stampa/Salva PDF</button>
+    <button class="btn secondary" onclick="downloadJpg('print')">📷 Scarica JPG riepilogo</button>
+    <button class="btn secondary" onclick="showDetailTable('print')">📊 Tabella dettaglio</button>
+    <button class="btn secondary" onclick="resetPrint()">🔄 Reset</button>
+  </div>
+
+</div>
+
+<!-- ==================== LASER ==================== -->
+<div class="app mode-section laser-mode" id="mode-laser">
+
+  <!-- Progetto -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progetto <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>% Guadagno desiderato</label>
+          <input type="number" id="l_profit_pct" value="100" min="0" oninput="calcLaser()">
+        </div>
+        <div class="form-group">
+          <label>Spese spedizione (€)</label>
+          <input type="number" id="l_shipping" value="0" min="0" step="0.1" oninput="calcLaser()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progettazione -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Progettazione / File <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Ore di progettazione/preparazione file</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="l_design_h" value="0" min="0" max="999" oninput="calcLaser()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="l_design_m" value="0" min="0" max="59" oninput="calcLaser()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Costo vettoriale/file acquistato (€)</label>
+          <input type="number" id="l_file_cost" value="0" min="0" step="0.5" oninput="calcLaser()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lavorazione -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Lavorazione Laser <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid three">
+        <div class="form-group">
+          <label>Ore di lavorazione laser</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="l_laser_h" value="0" min="0" max="999" oninput="calcLaser()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="l_laser_m" value="0" min="0" max="59" oninput="calcLaser()">
+              <span>min</span>
+            </div>
+          </div>
+          <div class="info">Tempo effettivo di incisione/taglio</div>
+        </div>
+        <div class="form-group">
+          <label>N° pezzi totali</label>
+          <input type="number" id="l_pieces" value="1" min="1" oninput="calcLaser()">
+        </div>
+        <div class="form-group">
+          <label>Ore di finitura/assemblaggio</label>
+          <div class="time-inputs">
+            <div class="sub">
+              <input type="number" id="l_finish_h" value="0" min="0" max="999" oninput="calcLaser()">
+              <span>ore</span>
+            </div>
+            <div class="sub">
+              <input type="number" id="l_finish_m" value="0" min="0" max="59" oninput="calcLaser()">
+              <span>min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Materiale -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Materiale <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Tipo materiale</label>
+          <select id="l_mat_type" onchange="calcLaser()">
+            <option value="custom">Personalizzato (inserisci costo)</option>
+            <option value="plywood3">Compensato 3mm (€8/mq)</option>
+            <option value="plywood5">Compensato 5mm (€12/mq)</option>
+            <option value="mdf3">MDF 3mm (€6/mq)</option>
+            <option value="acrylic3">Plexiglass 3mm (€20/mq)</option>
+            <option value="acrylic5">Plexiglass 5mm (€30/mq)</option>
+            <option value="leather">Pelle/similpelle (€15/mq)</option>
+            <option value="slate">Ardesia/pietra (€25/mq)</option>
+          </select>
+        </div>
+        <div class="form-group" id="l_mat_area_group">
+          <label>Superficie usata (cm²)</label>
+          <input type="number" id="l_mat_area" value="0" min="0" oninput="calcLaser()">
+          <div class="info">Larghezza × altezza del pezzo in cm²</div>
+        </div>
+        <div class="form-group" id="l_mat_cost_group">
+          <label>Costo materiale totale (€)</label>
+          <input type="number" id="l_mat_cost" value="0" min="0" step="0.5" oninput="calcLaser()">
+        </div>
+        <div class="form-group">
+          <label>Scarti/consumabili extra (€)</label>
+          <input type="number" id="l_waste_cost" value="0" min="0" step="0.1" oninput="calcLaser()">
+          <div class="info">Materiale sprecato, maschere, ecc.</div>
+        </div>
+        <div class="form-group">
+          <label>Altre spese (€)</label>
+          <input type="number" id="l_extra_cost" value="0" min="0" step="0.5" oninput="calcLaser()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lavorazioni extra laser -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Lavorazioni extra <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="info" style="margin-bottom:10px">Aggiungi lavorazioni aggiuntive (es. caricare file su chiavetta, confezionamento, applicazione transfer…).</div>
+      <div id="l_lav_list"></div>
+      <button class="add-lav-btn" onclick="addLav('l')">＋ Aggiungi lavorazione</button>
+    </div>
+  </div>
+
+  <!-- Risultati laser -->
+  <div class="result-box accent2" id="laser_result_box">
+    <div class="result-row">
+      <span class="lbl">Pezzi totali</span>
+      <span class="val" id="lr_pieces">0</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl">Costo progettazione/file <span style="font-size:10px;opacity:.6">(no markup)</span></span>
+      <span class="val" id="lr_design">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo macchina laser</span>
+      <span class="val" id="lr_machine">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo operatore (lavorazione + finitura)</span>
+      <span class="val" id="lr_labor">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Costo materiale</span>
+      <span class="val" id="lr_material">€ 0.00</span>
+    </div>
+    <div class="result-row" id="lr_lav_row" style="display:none">
+      <span class="lbl">Lavorazioni extra</span>
+      <span class="val" id="lr_lav_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Spedizione</span>
+      <span class="val" id="lr_shipping">€ 0.00</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <span class="lbl"><strong>Costo totale produzione</strong></span>
+      <span class="val" id="lr_total_cost">€ 0.00</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Guadagno applicato</span>
+      <span class="val profit" id="lr_profit">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">💰 PREVENTIVO TOTALE</span>
+      <span class="val" id="lr_quote_total">€ 0.00</span>
+    </div>
+    <div class="result-row big">
+      <span class="lbl">📦 Prezzo per pezzo</span>
+      <span class="val" id="lr_price_per">€ 0.00</span>
+    </div>
+  </div>
+
+  <!-- Note laser -->
+  <div class="card">
+    <div class="card-header collapsed" onclick="toggleCard(this)">
+      Note preventivo <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body hidden">
+      <div class="warning">
+        <span>⚠️</span>
+        <span id="laser_warnings">—</span>
+      </div>
+      <div style="margin-top:12px">
+        <label style="font-size:12px;color:var(--text-muted)">Note aggiuntive</label>
+        <textarea id="l_notes" placeholder="Inserisci note per questo preventivo..." style="margin-top:6px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn laser" onclick="window.print()">🖨 Stampa/Salva PDF</button>
+    <button class="btn secondary" onclick="downloadJpg('laser')">📷 Scarica JPG riepilogo</button>
+    <button class="btn secondary" onclick="showDetailTable('laser')">📊 Tabella dettaglio</button>
+    <button class="btn secondary" onclick="resetLaser()">🔄 Reset</button>
+  </div>
+
+</div>
+
+<!-- DETAIL TABLE MODAL -->
+<div class="modal-overlay" id="detail_modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h2>📊 Tabella dettaglio</h2>
+      <button class="close-btn" onclick="closeDetail()">×</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div id="detail_wrap" style="padding:20px;background:var(--surface)"></div>
+      <div style="padding:12px 20px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="detail_jpg_btn" onclick="downloadDetailJpg()">📷 Scarica JPG</button>
+        <button class="btn secondary" onclick="closeDetail()">Chiudi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RIMBORSI ==================== -->
+<div class="app mode-section" id="mode-split">
+
+  <!-- Incassi -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">
+      Incassi totali <span class="toggle-icon">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="info" style="margin-bottom:12px">Sincronizzati automaticamente dai preventivi. Puoi modificarli manualmente.</div>
+      <div class="form-grid three">
+        <div class="form-group">
+          <label>Incasso Stampa 3D (€)</label>
+          <input type="number" id="sp_print" value="0" min="0" step="0.01" oninput="calcSplit()">
+          <div class="info" id="sp_print_hint"></div>
+        </div>
+        <div class="form-group">
+          <label>Incasso Laser (€)</label>
+          <input type="number" id="sp_laser" value="0" min="0" step="0.01" oninput="calcSplit()">
+          <div class="info" id="sp_laser_hint"></div>
+        </div>
+        <div class="form-group">
+          <label>Altre entrate (€)</label>
+          <input type="number" id="sp_other" value="0" min="0" step="0.01" oninput="calcSplit()">
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn secondary" onclick="syncSplit()">🔄 Sincronizza dai preventivi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Numeri chiave -->
+  <div class="sp-summary">
+    <div class="sp-box green"><div class="sb-lbl">Incasso totale</div><div class="sb-val" id="sp_grand">€ 0.00</div></div>
+    <div class="sp-box orange"><div class="sb-lbl">Costi operatori</div><div class="sb-val" id="sp_costs_tot">€ 0.00</div></div>
+    <div class="sp-box blue"><div class="sb-lbl">Utile netto</div><div class="sb-val" id="sp_net">€ 0.00</div></div>
+  </div>
+
+  <!-- Barra % -->
+  <div class="pct-track-wrap">
+    <div class="pct-track" id="sp_pct_track"></div>
+    <div class="pct-track-labels">
+      <span>Quote operatori</span>
+      <span id="sp_pct_label">0% / 100%</span>
+    </div>
+  </div>
+  <div class="pct-warning" id="sp_pct_warn">
+    ⚠️ Le percentuali sommano <span id="sp_pct_sum">0</span>% — devono fare esattamente 100%
+  </div>
+
+  <!-- Operatori -->
+  <div id="sp_persons"></div>
+  <button class="add-person-btn" onclick="addPerson()">＋ Aggiungi operatore</button>
+
+  <!-- Riepilogo scaricabile -->
+  <div class="sp-result-box" id="sp_result_box">
+    <div class="sp-result-head">📊 Riepilogo rimborsi &amp; guadagni</div>
+    <div id="sp_result_rows">
+      <div style="color:var(--text-muted);font-size:13px">Aggiungi operatori per vedere il riepilogo.</div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" style="background:var(--green);border-color:var(--green)" onclick="downloadSplitJpg()">📷 Scarica JPG riepilogo</button>
+  </div>
+
+</div>
+
+<!-- SIDEBAR PREVENTIVI -->
+<div class="sidebar-overlay" id="sidebar_overlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <h3>📂 Preventivi salvati</h3>
+    <button class="close-btn" onclick="closeSidebar()">×</button>
+  </div>
+  <div class="sidebar-body" id="sidebar_list"></div>
+  <div class="sidebar-footer">
+    <button class="btn" style="width:100%" onclick="saveQuote()">💾 Salva preventivo corrente</button>
+    <button class="btn secondary" style="width:100%;margin-top:8px" onclick="newQuote()">＋ Nuovo preventivo</button>
+    <div id="gh_sync_status" style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- FAB Impostazioni -->
+<button class="fab" onclick="openSettings()" title="Impostazioni">⚙</button>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings_modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>⚙ Impostazioni</h2>
+      <button class="close-btn" onclick="closeSettings()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="settings-section-title">🖨 Stampa 3D</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Costo operatore (€/h)</label>
+          <input type="number" id="s_labor_h" value="10" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo filamento (€/kg)</label>
+          <input type="number" id="s_filament_kg" value="18" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo energia (€/kWh)</label>
+          <input type="number" id="s_energy_h" value="0.30" min="0" step="0.01">
+          <div class="info">Media stampante FDM ~150-300W</div>
+        </div>
+        <div class="form-group">
+          <label>Consumo stampante (W)</label>
+          <input type="number" id="s_printer_w" value="200" min="0" step="10">
+          <div class="info">Consumo medio effettivo</div>
+        </div>
+        <div class="form-group">
+          <label>Costo stampante (€)</label>
+          <input type="number" id="s_printer_cost" value="400" min="0" step="10">
+        </div>
+        <div class="form-group">
+          <label>Vita utile stampante (h)</label>
+          <input type="number" id="s_printer_life" value="10000" min="1" step="100">
+        </div>
+        <div class="form-group">
+          <label>Costo portachiavi (€/cad)</label>
+          <input type="number" id="s_keychain_cost" value="0.15" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Portachiavi applicabili/h</label>
+          <input type="number" id="s_keychain_per_h" value="200" min="1">
+        </div>
+        <div class="form-group">
+          <label>Costo resina (€/kg)</label>
+          <input type="number" id="s_resin_kg" value="35" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo NFC (€/cad)</label>
+          <input type="number" id="s_nfc_cost" value="0.15" min="0" step="0.01">
+        </div>
+      </div>
+
+      <div class="settings-section-title" style="margin-top:10px">⚡ Incisore Laser</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Costo operatore laser (€/h)</label>
+          <input type="number" id="s_laser_labor_h" value="12" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Costo energia laser (€/kWh)</label>
+          <input type="number" id="s_laser_energy_h" value="0.30" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Consumo laser (W)</label>
+          <input type="number" id="s_laser_w" value="500" min="0" step="10">
+          <div class="info">CO₂ ~400-800W, diodo ~30-80W</div>
+        </div>
+        <div class="form-group">
+          <label>Costo macchina laser (€)</label>
+          <input type="number" id="s_laser_cost" value="1200" min="0" step="50">
+        </div>
+        <div class="form-group">
+          <label>Vita utile laser (h)</label>
+          <input type="number" id="s_laser_life" value="8000" min="1" step="100">
+        </div>
+        <div class="form-group">
+          <label>Consumo lenti/tubi (€/h)</label>
+          <input type="number" id="s_laser_consumable" value="0.05" min="0" step="0.01">
+          <div class="info">Usura lenti, specchi, testa</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="saveSettings()">💾 Salva impostazioni</button>
+        <button class="btn secondary" onclick="resetSettings()">🔄 Default</button>
+      </div>
+
+      <div class="settings-section-title" style="margin-top:10px">☁️ Sincronizzazione JSONBin</div>
+      <div class="info" style="margin-bottom:8px">I preventivi vengono salvati su JSONBin.io — accessibili da qualsiasi dispositivo. Gratuito, nessun problema di compatibilità.</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>API Key</label>
+          <input type="password" id="jb_apikey" placeholder="$2a$10$...">
+          <div class="info">jsonbin.io → Registrati gratis → Dashboard → API Keys → Secret Key</div>
+        </div>
+        <div class="form-group full">
+          <label>Bin ID <span style="font-weight:400;opacity:.6">(lascia vuoto la prima volta — verrà creato automaticamente)</span></label>
+          <input type="text" id="jb_binid" placeholder="verrà compilato automaticamente al primo salvataggio">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="saveJbConfig()">💾 Salva config</button>
+        <button class="btn secondary" onclick="testJbConnection()">🔌 Testa connessione</button>
+      </div>
+      <div id="jb_status" style="font-size:12px;margin-top:6px;color:var(--text-muted)"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ——— SETTINGS ———
+const DEFAULTS = {
+  s_labor_h: 10, s_filament_kg: 18, s_energy_h: 0.30, s_printer_w: 200,
+  s_printer_cost: 400, s_printer_life: 10000,
+  s_keychain_cost: 0.15, s_keychain_per_h: 200,
+  s_resin_kg: 35, s_nfc_cost: 0.15,
+  s_laser_labor_h: 12, s_laser_energy_h: 0.30, s_laser_w: 500,
+  s_laser_cost: 1200, s_laser_life: 8000, s_laser_consumable: 0.05
+};
+
+function loadSettings() {
+  const saved = JSON.parse(localStorage.getItem('toys_settings') || '{}');
+  Object.entries(DEFAULTS).forEach(([k, def]) => {
+    const el = document.getElementById(k);
+    if (el) el.value = saved[k] !== undefined ? saved[k] : def;
+  });
+}
+function saveSettings() {
+  const settings = {};
+  Object.keys(DEFAULTS).forEach(k => {
+    const el = document.getElementById(k);
+    if (el) settings[k] = parseFloat(el.value) || 0;
+  });
+  localStorage.setItem('toys_settings', JSON.stringify(settings));
+  closeSettings();
+  calcPrint(); calcLaser();
+  showToast('Impostazioni salvate ✓');
+}
+function resetSettings() {
+  localStorage.removeItem('toys_settings');
+  loadSettings();
+  showToast('Impostazioni ripristinate');
+}
+function getSetting(k) { return parseFloat(document.getElementById(k)?.value) || 0; }
+function openSettings() { document.getElementById('settings_modal').classList.add('open'); }
+function closeSettings() { document.getElementById('settings_modal').classList.remove('open'); }
+
+// ——— MODE ———
+let currentMode = 'print';
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
+  document.getElementById('mode-' + mode).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[{print:0,laser:1,split:2}[mode]??0].classList.add('active');
+  if (mode === 'split') syncSplit();
+}
+
+// ——— CARD TOGGLE ———
+function toggleCard(header) {
+  header.classList.toggle('collapsed');
+  const body = header.nextElementSibling;
+  body.classList.toggle('hidden');
+}
+
+// ——— HELPERS ———
+function v(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function hm(hId, mId) { return v(hId) + v(mId) / 60; } // ore + minuti → ore decimali
+function fmt(n) { return '€ ' + n.toFixed(2); }
+function set(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
+
+// ——— LAVORAZIONI EXTRA ———
+const LAV_PRESETS_PRINT = [
+  'Caricamento file su chiavetta/SD',
+  'Confezionamento / imballaggio',
+  'Applicazione etichetta/adesivo',
+  'Verniciatura / pittura',
+  'Assemblaggio componenti',
+  'Foratura / maschiatura',
+  'Incollaggio parti',
+  'Controllo qualità',
+  'Fotografia prodotto',
+  'Personalizzazione testo (incisione/stampa)',
+  'Altro (scrivi sotto)',
+];
+const LAV_PRESETS_LASER = [
+  'Caricamento file su chiavetta/SD',
+  'Confezionamento / imballaggio',
+  'Applicazione transfer / mascheratura',
+  'Pulizia post-lavorazione (fuliggine)',
+  'Assemblaggio pannelli',
+  'Applicazione etichetta/adesivo',
+  'Verniciatura / finitura',
+  'Controllo qualità',
+  'Fotografia prodotto',
+  'Personalizzazione testo aggiuntivo',
+  'Altro (scrivi sotto)',
+];
+
+let lavCounters = { p: 0, l: 0 };
+
+function addLav(prefix) {
+  const id = ++lavCounters[prefix];
+  const presets = prefix === 'p' ? LAV_PRESETS_PRINT : LAV_PRESETS_LASER;
+  const calc = prefix === 'p' ? 'calcPrint()' : 'calcLaser()';
+  const html = `
+  <div class="lav-item" id="${prefix}_lav_${id}">
+    <div class="lav-header">
+      <div class="lav-name-wrap">
+        <select class="lav-select" id="${prefix}_lav_sel_${id}" onchange="onLavSelect('${prefix}',${id})" style="flex:1">
+          <option value="">— Scegli lavorazione —</option>
+          ${presets.map(p => `<option value="${p}">${p}</option>`).join('')}
+        </select>
+        <input class="lav-custom" type="text" id="${prefix}_lav_name_${id}" placeholder="Nome lavorazione..." oninput="${calc}">
+      </div>
+      <button class="remove-lav" onclick="removeLav('${prefix}',${id})" title="Rimuovi">✕</button>
+    </div>
+    <div class="lav-fields">
+      <div class="form-group">
+        <label>N° volte (totale)</label>
+        <input type="number" id="${prefix}_lav_qty_${id}" value="1" min="1" oninput="${calc}">
+        <div class="info">Quante volte fai questa lavorazione in totale</div>
+      </div>
+      <div class="form-group">
+        <label>Tempo per singola</label>
+        <div class="time-inputs">
+          <div class="sub">
+            <input type="number" id="${prefix}_lav_h_${id}" value="0" min="0" max="99" oninput="${calc}">
+            <span>ore</span>
+          </div>
+          <div class="sub">
+            <input type="number" id="${prefix}_lav_m_${id}" value="0" min="0" max="59" oninput="${calc}">
+            <span>min</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Costo materiali (€ per singola)</label>
+        <input type="number" id="${prefix}_lav_mat_${id}" value="0" min="0" step="0.1" oninput="${calc}">
+        <div class="info">Es. €0.50 a chiavetta × N° volte</div>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById(`${prefix}_lav_list`).insertAdjacentHTML('beforeend', html);
+  const calc2 = prefix === 'p' ? calcPrint : calcLaser;
+  calc2();
+}
+
+function onLavSelect(prefix, id) {
+  const sel = document.getElementById(`${prefix}_lav_sel_${id}`);
+  const custom = document.getElementById(`${prefix}_lav_name_${id}`);
+  if (sel.value === 'Altro (scrivi sotto)') {
+    custom.style.display = 'block';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+  }
+  if (prefix === 'p') calcPrint(); else calcLaser();
+}
+
+function removeLav(prefix, id) {
+  document.getElementById(`${prefix}_lav_${id}`)?.remove();
+  if (prefix === 'p') calcPrint(); else calcLaser();
+}
+
+function getLavCost(prefix, laborH) {
+  const list = document.getElementById(`${prefix}_lav_list`);
+  if (!list) return 0;
+  let total = 0;
+  list.querySelectorAll('.lav-item').forEach(item => {
+    const idMatch = item.id.match(/_(\d+)$/);
+    if (!idMatch) return;
+    const id = idMatch[1];
+    const qty = parseFloat(document.getElementById(`${prefix}_lav_qty_${id}`)?.value) || 0;
+    const h = parseFloat(document.getElementById(`${prefix}_lav_h_${id}`)?.value) || 0;
+    const m = parseFloat(document.getElementById(`${prefix}_lav_m_${id}`)?.value) || 0;
+    const mat = parseFloat(document.getElementById(`${prefix}_lav_mat_${id}`)?.value) || 0;
+    const timeH = h + m / 60;
+    total += qty * (timeH * laborH + mat);
+  });
+  return total;
+}
+
+// ——— CALC PRINT ———
+function calcPrint() {
+  const plates = Math.max(1, v('p_plates'));
+  const pcsPlate = Math.max(1, v('p_pcs_plate'));
+  const printH = hm('p_print_h', 'p_print_m');
+  const filamentG = v('p_filament_g');
+  const finishH = hm('p_finish_h', 'p_finish_m');
+  const designH = hm('p_design_h', 'p_design_m');
+  const modelCost = v('p_model_cost');
+  const extra = v('p_extra');
+  const profitPct = v('p_profit_pct') / 100;
+  const shipping = v('p_shipping');
+
+  // Settings
+  const laborH = getSetting('s_labor_h');
+  const filamentKg = getSetting('s_filament_kg');
+  const energyKWh = getSetting('s_energy_h');
+  const printerW = getSetting('s_printer_w');
+  const printerCost = getSetting('s_printer_cost');
+  const printerLife = getSetting('s_printer_life');
+  const keychainCost = getSetting('s_keychain_cost');
+  const keychainPerH = getSetting('s_keychain_per_h');
+  const resinKg = getSetting('s_resin_kg');
+  const nfcCost = getSetting('s_nfc_cost');
+
+  const wearPerH = printerLife > 0 ? printerCost / printerLife : 0;
+  const filamentPerG = filamentKg / 1000;
+  const resinPerG = resinKg / 1000;
+
+  // Optionals per piatto
+  const keychainN = v('p_keychain_n');
+  const resinG = v('p_resin_g');
+  const nfcN = v('p_nfc_n');
+  const optH = hm('p_opt_h', 'p_opt_m');
+  const extraCost = v('p_extra_cost');
+
+  // Per-plate costs
+  const costMachinePerPlate = printH * (energyKWh * (printerW/1000) + wearPerH);
+  const costMaterialPerPlate = filamentG * filamentPerG;
+  const costFinishPerPlate = finishH * laborH;
+  const costOptPerPlate = (keychainN * keychainCost) +
+    (resinG * resinPerG) + (nfcN * nfcCost) +
+    (optH * laborH);
+
+  // Totals
+  const designCost = designH * laborH + modelCost;
+  const totalMachine = costMachinePerPlate * plates;
+  const totalMaterial = costMaterialPerPlate * plates;
+  const totalFinish = costFinishPerPlate * plates;
+  const totalOpt = (costOptPerPlate * plates) + extraCost;
+
+  // Progettazione = costo fisso (ti pagano €10/h, niente markup)
+  // Markup applicato solo su: macchina + materiale + finitura + optionals + lavorazioni + spedizione
+  const lavCost = getLavCost('p', laborH);
+  const prodCostWithMarkup = totalMachine + totalMaterial + totalFinish + totalOpt + lavCost + shipping;
+  const profit = prodCostWithMarkup * profitPct;
+  const quoteTotal = designCost + prodCostWithMarkup + profit;
+  const prodCost = designCost + prodCostWithMarkup; // solo per display totale costi
+
+  const totalPcs = (pcsPlate * plates) + extra;
+  const pricePerPiece = totalPcs > 0 ? quoteTotal / totalPcs : 0;
+
+  // Display
+  set('r_total_pcs', totalPcs);
+  set('r_design_cost', fmt(designCost));
+  set('r_machine_cost', fmt(totalMachine));
+  set('r_material_cost', fmt(totalMaterial));
+  set('r_finish_cost', fmt(totalFinish));
+  set('r_opt_cost', fmt(totalOpt));
+  const lavRow = document.getElementById('r_lav_row');
+  if (lavRow) lavRow.style.display = lavCost > 0 ? '' : 'none';
+  set('r_lav_cost', fmt(lavCost));
+  set('r_shipping', fmt(shipping));
+  set('r_total_cost', fmt(prodCost));
+  set('r_profit', fmt(profit));
+  set('r_quote_total', fmt(quoteTotal));
+  set('r_price_per', fmt(pricePerPiece));
+
+  // Plate detail
+  const tbody = document.getElementById('plate_rows');
+  if (tbody) {
+    tbody.innerHTML = '';
+    for (let i = 1; i <= plates; i++) {
+      const plateProdBase = costMachinePerPlate + costMaterialPerPlate + costFinishPerPlate + costOptPerPlate + (shipping / plates);
+      const plateDesign = designCost / plates;
+      const plateQuote = plateDesign + plateProdBase * (1 + profitPct);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>Piatto ${i}</td><td>${fmt(plateDesign + plateProdBase)}</td><td>${fmt(plateQuote)}</td><td>${pcsPlate} pz</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // Warnings
+  const warns = [];
+  if (extra > 0) warns.push(`⚡ Hai aggiunto ${extra} pezzi di scorta (non venduti, ma conteggiati nel costo).`);
+  if (profitPct < 0.5) warns.push('⚠️ Margine molto basso! Considera di aumentare la % guadagno.');
+  if (filamentG === 0 && printH > 0) warns.push('⚠️ Ore di stampa inserite ma filamento 0g: verifica i dati.');
+  if (printH === 0 && plates > 0) warns.push('ℹ️ Ore di stampa non inserite: il costo macchina sarà 0.');
+  warns.push('📦 Ricorda: aggiungi 1-2 pezzi extra per ogni oggetto come scorta di sicurezza.');
+  warns.push('📐 Preventiva sempre una stampa senza colori per i controlli dimensionali.');
+  document.getElementById('print_warnings').innerHTML = warns.join('<br>');
+}
+
+// ——— CALC LASER ———
+const LASER_MATS = {
+  plywood3: 0.08, plywood5: 0.12, mdf3: 0.06,
+  acrylic3: 0.20, acrylic5: 0.30, leather: 0.15, slate: 0.25
+};
+function calcLaser() {
+  const laserH = hm('l_laser_h', 'l_laser_m');
+  const finishH = hm('l_finish_h', 'l_finish_m');
+  const designH = hm('l_design_h', 'l_design_m');
+  const fileCost = v('l_file_cost');
+  const pieces = Math.max(1, v('l_pieces'));
+  const profitPct = v('l_profit_pct') / 100;
+  const shipping = v('l_shipping');
+  const wasteCost = v('l_waste_cost');
+  const extraCost = v('l_extra_cost');
+
+  const matType = document.getElementById('l_mat_type').value;
+  const isCustom = matType === 'custom';
+  document.getElementById('l_mat_area_group').style.display = isCustom ? 'none' : '';
+  document.getElementById('l_mat_cost_group').style.display = isCustom ? '' : 'none';
+
+  let materialCost = 0;
+  if (isCustom) {
+    materialCost = v('l_mat_cost');
+  } else {
+    const area_cm2 = v('l_mat_area');
+    const pricePerCm2 = LASER_MATS[matType] || 0;
+    materialCost = area_cm2 * pricePerCm2 / 100; // €/m² → €/cm²: (price/m²)/10000*cm²
+    // Actually: price is €/m², area in cm², so: price/m² = price/10000 per cm²
+    materialCost = area_cm2 * (LASER_MATS[matType] / 10000) * pieces;
+    // Let me recalc: LASER_MATS is €/m², 1m²=10000cm²
+    // material cost = (area_cm2 * pieces * pricePerM2) / 10000
+  }
+
+  // Settings
+  const laborH = getSetting('s_laser_labor_h');
+  const energyKWh = getSetting('s_laser_energy_h');
+  const laserW = getSetting('s_laser_w');
+  const laserCost = getSetting('s_laser_cost');
+  const laserLife = getSetting('s_laser_life');
+  const consumable = getSetting('s_laser_consumable');
+
+  const wearPerH = laserLife > 0 ? laserCost / laserLife : 0;
+  const energyCostPerH = energyKWh * (laserW / 1000);
+
+  const designCost = designH * laborH + fileCost;
+  const machineCost = laserH * (energyCostPerH + wearPerH + consumable);
+  const laborCost = (laserH + finishH) * laborH;
+
+  if (!isCustom) {
+    const area_cm2 = v('l_mat_area');
+    materialCost = area_cm2 * pieces * (LASER_MATS[matType] / 10000);
+  }
+
+  // Progettazione = costo fisso senza markup
+  const lavCostL = getLavCost('l', laborH);
+  const prodCostWithMarkup = machineCost + laborCost + materialCost + wasteCost + extraCost + lavCostL + shipping;
+  const profit = prodCostWithMarkup * profitPct;
+  const quoteTotal = designCost + prodCostWithMarkup + profit;
+  const prodCost = designCost + prodCostWithMarkup;
+  const pricePerPiece = pieces > 0 ? quoteTotal / pieces : 0;
+
+  set('lr_pieces', pieces);
+  set('lr_design', fmt(designCost));
+  set('lr_machine', fmt(machineCost));
+  set('lr_labor', fmt(laborCost));
+  set('lr_material', fmt(materialCost + wasteCost));
+  const llavRow = document.getElementById('lr_lav_row');
+  if (llavRow) llavRow.style.display = lavCostL > 0 ? '' : 'none';
+  set('lr_lav_cost', fmt(lavCostL));
+  set('lr_shipping', fmt(shipping));
+  set('lr_total_cost', fmt(prodCost));
+  set('lr_profit', fmt(profit));
+  set('lr_quote_total', fmt(quoteTotal));
+  set('lr_price_per', fmt(pricePerPiece));
+
+  const warns = [];
+  if (laserH === 0) warns.push('ℹ️ Ore di lavorazione laser non inserite.');
+  if (profitPct < 0.5) warns.push('⚠️ Margine molto basso.');
+  warns.push('🔥 Per materiali con vernici/plastiche, verifica che siano sicuri per la lavorazione laser.');
+  warns.push('📐 Considera il kerf (taglio del laser) nei tuoi calcoli di precisione.');
+  warns.push('🧪 Fai sempre un test su un pezzo di scarto prima di lavorare il materiale finale.');
+  document.getElementById('laser_warnings').innerHTML = warns.join('<br>');
+}
+
+// ——— RESET ———
+function resetPrint() {
+  ['p_profit_pct','p_shipping','p_design_h','p_design_m','p_model_cost',
+   'p_print_h','p_print_m','p_filament_g','p_finish_h','p_finish_m',
+   'p_pcs_plate','p_plates','p_extra',
+   'p_keychain_n','p_resin_g','p_nfc_n','p_opt_h','p_opt_m','p_extra_cost','p_notes']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === 'p_profit_pct') el.value = 100;
+      else if (id === 'p_pcs_plate' || id === 'p_plates') el.value = 1;
+      else if (el.type === 'text' || el.tagName === 'TEXTAREA') el.value = '';
+      else el.value = 0;
+    });
+  calcPrint();
+}
+function resetLaser() {
+  ['l_profit_pct','l_shipping','l_design_h','l_design_m','l_file_cost',
+   'l_laser_h','l_laser_m','l_pieces','l_finish_h','l_finish_m',
+   'l_mat_area','l_mat_cost','l_waste_cost','l_extra_cost','l_notes']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === 'l_profit_pct') el.value = 100;
+      else if (id === 'l_pieces') el.value = 1;
+      else if (el.type === 'text' || el.tagName === 'TEXTAREA') el.value = '';
+      else el.value = 0;
+    });
+  document.getElementById('l_mat_type').value = 'custom';
+  calcLaser();
+}
+
+// ——— TOAST ———
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;transition:opacity .3s;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2500);
+}
+
+// ——— JPG DOWNLOAD ———
+async function downloadJpg(mode) {
+  const boxId = mode === 'print' ? 'print_result_box' : 'laser_result_box';
+  const box = document.getElementById(boxId);
+  const projectName = document.getElementById('quote_name')?.value || 'preventivo';
+
+  if (typeof html2canvas === 'undefined') {
+    showToast('Caricamento libreria immagine...');
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  showToast('Generazione immagine...');
+  // Temporarily add padding/bg for the snapshot
+  const prev = box.style.cssText;
+  box.style.padding = '24px';
+
+  try {
+    const canvas = await html2canvas(box, {
+      backgroundColor: mode === 'print' ? '#1f1710' : '#101a2a',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    });
+    box.style.cssText = prev;
+
+    const link = document.createElement('a');
+    link.download = `preventivo_${projectName.replace(/\s+/g,'_')}.jpg`;
+    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+    showToast('JPG scaricato ✓');
+  } catch(e) {
+    box.style.cssText = prev;
+    showToast('Errore generazione immagine');
+  }
+}
+
+// ——— DETAIL TABLE ———
+let _detailMode = 'print';
+
+function showDetailTable(mode) {
+  _detailMode = mode;
+  const isL = mode === 'laser';
+  const ac = isL ? 'laser' : '';
+  const wrap = document.getElementById('detail_wrap');
+  const btn = document.getElementById('detail_jpg_btn');
+  if (btn) btn.className = isL ? 'btn laser' : 'btn';
+
+  // helpers
+  const fv = id => parseFloat(document.getElementById(id)?.value) || 0;
+  const fc = id => parseFloat((document.getElementById(id)?.textContent||'').replace('€ ','')) || 0;
+  const ef = n => '€ ' + n.toFixed(2);
+
+  let proj, subtitle, rows = '';
+
+  if (!isL) {
+    proj = document.getElementById('quote_name')?.value || '—';
+    const plates = Math.max(1, fv('p_plates'));
+    const pcsPlate = Math.max(1, fv('p_pcs_plate'));
+    const extra = fv('p_extra');
+    const totalPcs = pcsPlate * plates + extra;
+    const profitPct = fv('p_profit_pct');
+    subtitle = `Stampa 3D · ${plates} piatt${plates>1?'i':'o'} · ${totalPcs} pezzi · ${new Date().toLocaleDateString('it-IT')}`;
+
+    const laborH = getSetting('s_labor_h');
+    const filKg = getSetting('s_filament_kg');
+    const eKWh = getSetting('s_energy_h');
+    const pW = getSetting('s_printer_w');
+    const pCost = getSetting('s_printer_cost');
+    const pLife = getSetting('s_printer_life');
+    const wear = pLife > 0 ? pCost/pLife : 0;
+    const ePerH = eKWh * (pW/1000);
+
+    const dH = hm('p_design_h','p_design_m');
+    const prtH = hm('p_print_h','p_print_m');
+    const finH = hm('p_finish_h','p_finish_m');
+    const optH = hm('p_opt_h','p_opt_m');
+    const filG = fv('p_filament_g');
+    const modelC = fv('p_model_cost');
+    const kN = fv('p_keychain_n'); const kC = getSetting('s_keychain_cost');
+    const rG = fv('p_resin_g'); const rKg = getSetting('s_resin_kg');
+    const nN = fv('p_nfc_n'); const nC = getSetting('s_nfc_cost');
+    const extraCost = fv('p_extra_cost');
+    const ship = fv('p_shipping');
+
+    const dCost = fc('r_design_cost');
+    const mCost = fc('r_machine_cost');
+    const matCost = fc('r_material_cost');
+    const fCost = fc('r_finish_cost');
+    const optCost = fc('r_opt_cost');
+    const lavC = fc('r_lav_cost');
+    const totCost = fc('r_total_cost');
+    const profitVal = fc('r_profit');
+    const qTotal = fc('r_quote_total');
+    const pPer = fc('r_price_per');
+
+    rows = `
+    <tr class="dhead"><td colspan="3">PROGETTAZIONE <span style="font-weight:400;opacity:.6">(no markup)</span></td></tr>
+    ${dH>0?`<tr><td>Ore progettazione<div class="dsub">${dH.toFixed(2)}h × €${laborH}/h</div></td><td>${dH.toFixed(2)}h × €${laborH}</td><td>${ef(dH*laborH)}</td></tr>`:''}
+    ${modelC>0?`<tr><td>Modello acquistato</td><td>costo fisso</td><td>${ef(modelC)}</td></tr>`:''}
+    <tr class="dtotal"><td colspan="2">Subtotale progettazione</td><td>${ef(dCost)}</td></tr>
+
+    <tr class="dhead"><td colspan="3">PRODUZIONE <span style="font-weight:400;opacity:.6">(markup ${profitPct}%)</span></td></tr>
+    <tr><td>Macchina stampa<div class="dsub">${prtH.toFixed(2)}h/piatto × ${plates} piatti</div></td><td>${prtH.toFixed(2)}h × (€${ePerH.toFixed(3)}+€${wear.toFixed(4)}) × ${plates}</td><td>${ef(mCost)}</td></tr>
+    <tr><td>Filamento<div class="dsub">${filG}g/piatto · €${filKg}/kg × ${plates} piatti</div></td><td>${filG}g × €${(filKg/1000).toFixed(4)}/g × ${plates}</td><td>${ef(matCost)}</td></tr>
+    <tr><td>Finitura<div class="dsub">${finH.toFixed(2)}h/piatto × €${laborH}/h × ${plates}</div></td><td>${finH.toFixed(2)} × €${laborH} × ${plates}</td><td>${ef(fCost)}</td></tr>
+    ${kN>0?`<tr><td>Portachiavi<div class="dsub">${kN}/piatto × ${plates} piatti</div></td><td>${kN} × €${kC} × ${plates}</td><td>${ef(kN*kC*plates)}</td></tr>`:''}
+    ${rG>0?`<tr><td>Resina<div class="dsub">${rG}g/piatto × ${plates} piatti</div></td><td>${rG}g × €${(rKg/1000).toFixed(4)}/g × ${plates}</td><td>${ef(rG*(rKg/1000)*plates)}</td></tr>`:''}
+    ${nN>0?`<tr><td>NFC<div class="dsub">${nN}/piatto × ${plates} piatti</div></td><td>${nN} × €${nC} × ${plates}</td><td>${ef(nN*nC*plates)}</td></tr>`:''}
+    ${optH>0?`<tr><td>Manodopera optionals<div class="dsub">${optH.toFixed(2)}h/piatto × ${plates}</div></td><td>${optH.toFixed(2)}h × €${laborH} × ${plates}</td><td>${ef(optH*laborH*plates)}</td></tr>`:''}
+    ${extraCost>0?`<tr><td>Spese extra</td><td>costo fisso</td><td>${ef(extraCost)}</td></tr>`:''}
+    ${buildLavDetail('p', laborH)}
+    ${ship>0?`<tr><td>Spedizione</td><td>costo fisso</td><td>${ef(ship)}</td></tr>`:''}
+    <tr class="dtotal"><td colspan="2">Subtotale produzione</td><td>${ef(totCost-dCost)}</td></tr>
+    <tr class="dtotal"><td colspan="2">Guadagno ${profitPct}%</td><td>${ef(profitVal)}</td></tr>
+
+    <tr class="dhead"><td colspan="3">RIEPILOGO</td></tr>
+    <tr class="dtotal"><td colspan="2">Costo totale produzione</td><td>${ef(totCost)}</td></tr>
+    <tr class="dgrand ${ac}"><td colspan="2">💰 PREVENTIVO TOTALE</td><td>${ef(qTotal)}</td></tr>
+    <tr class="dsub-grand ${ac}"><td colspan="2">📦 Prezzo per pezzo (${totalPcs} pz)</td><td>${ef(pPer)}</td></tr>`;
+
+  } else {
+    proj = document.getElementById('quote_name')?.value || '—';
+    const pieces = Math.max(1, fv('l_pieces'));
+    const profitPct = fv('l_profit_pct');
+    subtitle = `Laser · ${pieces} pezzi · ${new Date().toLocaleDateString('it-IT')}`;
+
+    const laborH = getSetting('s_laser_labor_h');
+    const eKWh = getSetting('s_laser_energy_h');
+    const lW = getSetting('s_laser_w');
+    const lCost = getSetting('s_laser_cost');
+    const lLife = getSetting('s_laser_life');
+    const cons = getSetting('s_laser_consumable');
+    const wear = lLife > 0 ? lCost/lLife : 0;
+    const ePerH = eKWh * (lW/1000);
+
+    const dH = hm('l_design_h','l_design_m');
+    const lH = hm('l_laser_h','l_laser_m');
+    const finH = hm('l_finish_h','l_finish_m');
+    const fileCost = fv('l_file_cost');
+    const wasteCost = fv('l_waste_cost');
+    const extraCost = fv('l_extra_cost');
+    const ship = fv('l_shipping');
+
+    const dCost = fc('lr_design');
+    const mCost = fc('lr_machine');
+    const labCost = fc('lr_labor');
+    const matCost = fc('lr_material');
+    const lavC = fc('lr_lav_cost');
+    const totCost = fc('lr_total_cost');
+    const profitVal = fc('lr_profit');
+    const qTotal = fc('lr_quote_total');
+    const pPer = fc('lr_price_per');
+
+    rows = `
+    <tr class="dhead"><td colspan="3">PROGETTAZIONE <span style="font-weight:400;opacity:.6">(no markup)</span></td></tr>
+    ${dH>0?`<tr><td>Ore progettazione<div class="dsub">${dH.toFixed(2)}h × €${laborH}/h</div></td><td>${dH.toFixed(2)}h × €${laborH}</td><td>${ef(dH*laborH)}</td></tr>`:''}
+    ${fileCost>0?`<tr><td>File/vettoriale acquistato</td><td>costo fisso</td><td>${ef(fileCost)}</td></tr>`:''}
+    <tr class="dtotal"><td colspan="2">Subtotale progettazione</td><td>${ef(dCost)}</td></tr>
+
+    <tr class="dhead"><td colspan="3">PRODUZIONE <span style="font-weight:400;opacity:.6">(markup ${profitPct}%)</span></td></tr>
+    <tr><td>Macchina laser<div class="dsub">${lH.toFixed(2)}h lavorazione</div></td><td>${lH.toFixed(2)}h × (€${ePerH.toFixed(3)} en. + €${wear.toFixed(4)} usura + €${cons} cons.)</td><td>${ef(mCost)}</td></tr>
+    <tr><td>Operatore<div class="dsub">${lH.toFixed(2)}h laser + ${finH.toFixed(2)}h finitura</div></td><td>(${lH.toFixed(2)}+${finH.toFixed(2)})h × €${laborH}/h</td><td>${ef(labCost)}</td></tr>
+    ${matCost>0?`<tr><td>Materiale + scarti<div class="dsub">incl. €${wasteCost.toFixed(2)} scarti</div></td><td>costo materiale</td><td>${ef(matCost)}</td></tr>`:''}
+    ${extraCost>0?`<tr><td>Spese extra</td><td>costo fisso</td><td>${ef(extraCost)}</td></tr>`:''}
+    ${buildLavDetail('l', laborH)}
+    ${ship>0?`<tr><td>Spedizione</td><td>costo fisso</td><td>${ef(ship)}</td></tr>`:''}
+    <tr class="dtotal"><td colspan="2">Subtotale produzione</td><td>${ef(totCost-dCost)}</td></tr>
+    <tr class="dtotal"><td colspan="2">Guadagno ${profitPct}%</td><td>${ef(profitVal)}</td></tr>
+
+    <tr class="dhead"><td colspan="3">RIEPILOGO</td></tr>
+    <tr class="dtotal"><td colspan="2">Costo totale produzione</td><td>${ef(totCost)}</td></tr>
+    <tr class="dgrand laser"><td colspan="2">💰 PREVENTIVO TOTALE</td><td>${ef(qTotal)}</td></tr>
+    <tr class="dsub-grand laser"><td colspan="2">📦 Prezzo per pezzo (${pieces} pz)</td><td>${ef(pPer)}</td></tr>`;
+  }
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="font-size:17px;font-weight:800">${proj}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:3px">${subtitle}</div>
+    </div>
+    <table class="dtable">
+      <thead><tr><th>Voce</th><th>Calcolo</th><th>Importo</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  document.getElementById('detail_modal').classList.add('open');
+}
+
+function buildLavDetail(prefix, laborH) {
+  const list = document.getElementById(`${prefix}_lav_list`);
+  if (!list) return '';
+  let out = '';
+  list.querySelectorAll('.lav-item').forEach(item => {
+    const n = item.id.match(/_(\d+)$/)?.[1];
+    if (!n) return;
+    const sel = document.getElementById(`${prefix}_lav_sel_${n}`);
+    const cust = document.getElementById(`${prefix}_lav_name_${n}`);
+    const name = sel?.value === 'Altro (scrivi sotto)' ? (cust?.value||'Lavorazione') : (sel?.value||'Lavorazione');
+    const qty = parseFloat(document.getElementById(`${prefix}_lav_qty_${n}`)?.value)||0;
+    const h = parseFloat(document.getElementById(`${prefix}_lav_h_${n}`)?.value)||0;
+    const m = parseFloat(document.getElementById(`${prefix}_lav_m_${n}`)?.value)||0;
+    const mat = parseFloat(document.getElementById(`${prefix}_lav_mat_${n}`)?.value)||0;
+    const tH = h + m/60;
+    const cost = qty * (tH*laborH + mat);
+    if (qty>0 && (tH>0||mat>0)) {
+      const parts = [];
+      if (tH>0) parts.push(`${tH.toFixed(2)}h×€${laborH}/h`);
+      if (mat>0) parts.push(`€${mat.toFixed(2)}/cad`);
+      out += `<tr><td>${name}<div class="dsub">${qty} volte · ${h}h ${m}min cad.</div></td><td>(${parts.join('+')}×${qty})</td><td>€ ${cost.toFixed(2)}</td></tr>`;
+    }
+  });
+  return out;
+}
+
+function closeDetail() {
+  document.getElementById('detail_modal').classList.remove('open');
+}
+
+async function downloadDetailJpg() {
+  const wrap = document.getElementById('detail_wrap');
+  if (typeof html2canvas === 'undefined') {
+    showToast('Caricamento libreria...');
+    await new Promise((res,rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+  showToast('Generazione immagine...');
+  try {
+    const canvas = await html2canvas(wrap, { backgroundColor:'#1a1a1a', scale:2, useCORS:true, logging:false });
+    const proj = document.getElementById(quote_name)?.value||'preventivo';
+    const a = document.createElement('a');
+    a.download = `dettaglio_${proj.replace(/\s+/g,'_')}.jpg`;
+    a.href = canvas.toDataURL('image/jpeg', 0.95);
+    a.click();
+    showToast('JPG scaricato ✓');
+  } catch(e) { showToast('Errore generazione immagine'); }
+}
+
+// ——— SPLIT / RIMBORSI ———
+const SP_COLORS = ['#e05252','#3d9eff','#4caf7d','#f5c842','#c77dff','#ff9f43','#54a0ff','#ff6b81'];
+let spCounter = 0;
+
+function syncSplit() {
+  const fc = id => parseFloat((document.getElementById(id)?.textContent||'0').replace('€ ',''))||0;
+  const pQ = fc('r_quote_total');
+  const lQ = fc('lr_quote_total');
+  const pC = fc('r_total_cost');
+  const lC = fc('lr_total_cost');
+  const pEl = document.getElementById('sp_print');
+  const lEl = document.getElementById('sp_laser');
+  if (pEl) pEl.value = pQ.toFixed(2);
+  if (lEl) lEl.value = lQ.toFixed(2);
+  const ph = document.getElementById('sp_print_hint');
+  const lh = document.getElementById('sp_laser_hint');
+  if (ph) ph.textContent = pQ > 0 ? `Costi €${pC.toFixed(2)} · Guadagno €${(pQ-pC).toFixed(2)}` : 'Preventivo non compilato';
+  if (lh) lh.textContent = lQ > 0 ? `Costi €${lC.toFixed(2)} · Guadagno €${(lQ-lC).toFixed(2)}` : 'Preventivo non compilato';
+  calcSplit();
+}
+
+function addPerson(data) {
+  const id = ++spCounter;
+  const color = SP_COLORS[(id-1) % SP_COLORS.length];
+  const name = data?.name || '';
+  const pct  = data?.pct  ?? '';
+  const div = document.createElement('div');
+  div.className = 'person-card';
+  div.id = `sp_p_${id}`;
+  div.innerHTML = `
+    <div class="person-head">
+      <div class="person-dot" style="background:${color}"></div>
+      <input class="ph-name" type="text" id="sp_name_${id}" value="${name}" placeholder="Nome operatore" oninput="calcSplit()">
+      <div class="ph-pct">
+        <label>Quota guadagno</label>
+        <input type="number" id="sp_pct_${id}" value="${pct}" min="0" max="100" placeholder="%" oninput="calcSplit()">
+        <span class="sym">%</span>
+      </div>
+      <button class="remove-person" onclick="removePerson(${id})">✕</button>
+    </div>
+    <div class="person-body">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:10px">Costi sostenuti da questo operatore</div>
+      <div class="person-costs">
+        <div class="form-group">
+          <label>Costi Stampa 3D (€)</label>
+          <input type="number" id="sp_c3_${id}" value="${data?.c3||0}" min="0" step="0.01" oninput="calcSplit()">
+          <div class="info">Filamento, energia, usura macchina</div>
+        </div>
+        <div class="form-group">
+          <label>Costi Laser (€)</label>
+          <input type="number" id="sp_cl_${id}" value="${data?.cl||0}" min="0" step="0.01" oninput="calcSplit()">
+          <div class="info">Materiale, energia, usura macchina</div>
+        </div>
+        <div class="form-group">
+          <label>Altri costi (€)</label>
+          <input type="number" id="sp_co_${id}" value="${data?.co||0}" min="0" step="0.01" oninput="calcSplit()">
+          <div class="info">Trasporti, attrezzatura, ecc.</div>
+        </div>
+      </div>
+      <div class="person-mini-result" id="sp_mini_${id}">
+        <div><div class="pmr-lbl">Costi totali</div><div class="pmr-val red" id="sp_mc_${id}">€ 0.00</div></div>
+        <div><div class="pmr-lbl">Rimborso costi</div><div class="pmr-val blue" id="sp_mr_${id}">€ 0.00</div></div>
+        <div><div class="pmr-lbl">Quota guadagno</div><div class="pmr-val green" id="sp_mg_${id}">€ 0.00</div></div>
+        <div><div class="pmr-lbl">💶 Da ricevere</div><div class="pmr-val green" id="sp_mn_${id}">€ 0.00</div></div>
+      </div>
+    </div>`;
+  document.getElementById('sp_persons').appendChild(div);
+  calcSplit();
+}
+
+function removePerson(id) {
+  document.getElementById(`sp_p_${id}`)?.remove();
+  calcSplit();
+}
+
+function getPersonIds() {
+  return [...document.querySelectorAll('#sp_persons .person-card')]
+    .map(el => el.id.replace('sp_p_',''));
+}
+
+function calcSplit() {
+  const fv = id => parseFloat(document.getElementById(id)?.value)||0;
+  const printInc = fv('sp_print');
+  const laserInc = fv('sp_laser');
+  const otherInc = fv('sp_other');
+  const grand    = printInc + laserInc + otherInc;
+
+  const ids = getPersonIds();
+
+  // Total costs
+  let costsTot = 0;
+  ids.forEach(id => { costsTot += fv(`sp_c3_${id}`) + fv(`sp_cl_${id}`) + fv(`sp_co_${id}`); });
+  const net = grand - costsTot;
+
+  // Pct check
+  let pctSum = 0;
+  ids.forEach(id => { pctSum += fv(`sp_pct_${id}`); });
+  const pctOk = ids.length === 0 || Math.abs(pctSum - 100) < 0.01;
+  const warn = document.getElementById('sp_pct_warn');
+  if (warn) warn.classList.toggle('visible', !pctOk && ids.length > 0);
+  const ps = document.getElementById('sp_pct_sum');
+  if (ps) ps.textContent = pctSum.toFixed(1);
+  const pl = document.getElementById('sp_pct_label');
+  if (pl) pl.textContent = pctSum.toFixed(1) + '% / 100%';
+
+  // Color bar
+  const track = document.getElementById('sp_pct_track');
+  if (track) {
+    track.innerHTML = '';
+    let used = 0;
+    ids.forEach((id, i) => {
+      const p = Math.min(fv(`sp_pct_${id}`), 100 - used);
+      if (p <= 0) return;
+      const fill = document.createElement('div');
+      fill.className = 'pct-track-fill';
+      fill.style.width = p + '%';
+      fill.style.background = SP_COLORS[i % SP_COLORS.length];
+      track.appendChild(fill);
+      used += p;
+    });
+  }
+
+  // Summary boxes
+  document.getElementById('sp_grand').textContent = '€ ' + grand.toFixed(2);
+  document.getElementById('sp_costs_tot').textContent = '€ ' + costsTot.toFixed(2);
+  const netEl = document.getElementById('sp_net');
+  netEl.textContent = '€ ' + net.toFixed(2);
+  netEl.style.color = net >= 0 ? 'var(--accent2)' : 'var(--red)';
+
+  // Per-person
+  let resultRows = '';
+  let totalOut = 0;
+
+  ids.forEach((id, i) => {
+    const name   = document.getElementById(`sp_name_${id}`)?.value || `Operatore ${id}`;
+    const pct    = fv(`sp_pct_${id}`);
+    const c3     = fv(`sp_c3_${id}`);
+    const cl     = fv(`sp_cl_${id}`);
+    const co     = fv(`sp_co_${id}`);
+    const color  = SP_COLORS[i % SP_COLORS.length];
+    const costs  = c3 + cl + co;
+    const gain   = pctOk ? (net * pct / 100) : 0;
+    const netto  = costs + gain; // rimborso costi + quota utile
+    totalOut    += netto;
+
+    // Mini result inline
+    const setT = (eid, val, cls) => {
+      const el = document.getElementById(eid);
+      if (!el) return;
+      el.textContent = '€ ' + val.toFixed(2);
+      if (cls) el.className = 'pmr-val ' + cls;
+    };
+    setT(`sp_mc_${id}`, costs, 'red');
+    setT(`sp_mr_${id}`, costs, 'blue');   // rimborso costi = costi stessi
+    setT(`sp_mg_${id}`, gain,  gain>=0?'green':'red');
+    setT(`sp_mn_${id}`, netto, netto>=0?'green':'red');
+
+    // Result row for summary box
+    const details = [];
+    if (c3 > 0) details.push(`3D €${c3.toFixed(2)}`);
+    if (cl > 0) details.push(`Laser €${cl.toFixed(2)}`);
+    if (co > 0) details.push(`Altro €${co.toFixed(2)}`);
+    const detailStr = details.length ? `Costi: ${details.join(' · ')}` : 'Nessun costo';
+
+    resultRows += `
+      <div class="sp-row">
+        <div>
+          <div class="sp-row-name">
+            <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+            ${name} <span style="font-size:12px;color:var(--text-muted);font-weight:400">${pct}%</span>
+          </div>
+          <div class="sp-row-detail">
+            ${detailStr}<br>
+            Rimborso costi €${costs.toFixed(2)} + Quota utile €${gain.toFixed(2)}
+          </div>
+        </div>
+        <div class="sp-row-amount">
+          <div class="big" style="color:${netto>=0?'var(--green)':'var(--red)'}">€ ${netto.toFixed(2)}</div>
+          <div class="small">da ricevere</div>
+        </div>
+      </div>`;
+  });
+
+  if (ids.length === 0) {
+    resultRows = '<div style="color:var(--text-muted);font-size:13px">Aggiungi operatori per vedere il riepilogo.</div>';
+  } else {
+    const diff = grand - totalOut;
+    const ok = Math.abs(diff) < 0.01;
+    resultRows += `
+      <div class="sp-total-check">
+        <span>Totale distribuito</span>
+        <span style="color:${ok?'var(--green)':'var(--red)'}">
+          € ${totalOut.toFixed(2)} ${ok ? '✓ tutto distribuito' : `⚠️ differenza €${diff.toFixed(2)}`}
+        </span>
+      </div>`;
+    if (!pctOk && ids.length > 0) {
+      resultRows += `<div style="color:var(--yellow);font-size:12px;margin-top:8px">⚠️ Quote non al 100% — i calcoli guadagno sono disabilitati.</div>`;
+    }
+  }
+
+  document.getElementById('sp_result_rows').innerHTML = resultRows;
+}
+
+async function downloadSplitJpg() {
+  const box = document.getElementById('sp_result_box');
+  if (typeof html2canvas === 'undefined') {
+    showToast('Caricamento libreria...');
+    await new Promise((res,rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = res; s.onerror = rej; document.head.appendChild(s);
+    });
+  }
+  showToast('Generazione immagine...');
+  try {
+    const canvas = await html2canvas(box, { backgroundColor:'#1a1a1a', scale:2, useCORS:true, logging:false });
+    const a = document.createElement('a');
+    a.download = `rimborsi_${new Date().toLocaleDateString('it-IT').replace(/\//g,'-')}.jpg`;
+    a.href = canvas.toDataURL('image/jpeg', 0.95);
+    a.click();
+    showToast('JPG scaricato ✓');
+  } catch(e) { showToast('Errore generazione immagine'); }
+}
+
+// ——— JSONBIN SYNC ———
+const JB_CONFIG_KEY = 'toys_jb_config';
+const JB_BASE = 'https://api.jsonbin.io/v3';
+
+function getJbConfig() {
+  try { return JSON.parse(localStorage.getItem(JB_CONFIG_KEY) || '{}'); } catch { return {}; }
+}
+function saveJbConfig() {
+  const cfg = {
+    apikey: document.getElementById('jb_apikey')?.value?.trim() || '',
+    binid:  document.getElementById('jb_binid')?.value?.trim()  || '',
+  };
+  localStorage.setItem(JB_CONFIG_KEY, JSON.stringify(cfg));
+  showToast('Config salvata ✓');
+  setJbStatus('Config salvata. Clicca "Testa connessione" per verificare.', 'var(--text-muted)');
+}
+function loadJbConfigToForm() {
+  const cfg = getJbConfig();
+  if (cfg.apikey) document.getElementById('jb_apikey').value = cfg.apikey;
+  if (cfg.binid)  document.getElementById('jb_binid').value  = cfg.binid;
+}
+function setJbStatus(msg, color) {
+  const el = document.getElementById('jb_status');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; }
+}
+function setSyncStatus(msg, color) {
+  const el = document.getElementById('gh_sync_status');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; }
+}
+
+async function testJbConnection() {
+  const cfg = getJbConfig();
+  if (!cfg.apikey) { setJbStatus('⚠️ Inserisci la API Key prima', 'var(--yellow)'); return; }
+  setJbStatus('Connessione in corso…', 'var(--text-muted)');
+  try {
+    const res = await fetch(`${JB_BASE}/b`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apikey, 'X-Bin-Name': 'test' },
+      body: JSON.stringify({ test: true })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      // delete test bin
+      await fetch(`${JB_BASE}/b/${data.metadata.id}`, { method: 'DELETE', headers: { 'X-Master-Key': cfg.apikey } });
+      setJbStatus('✅ Connessione riuscita! API Key valida.', 'var(--green)');
+    } else {
+      const err = await res.json();
+      setJbStatus(`❌ Errore ${res.status}: ${err.message||'API Key non valida'}`, 'var(--red)');
+    }
+  } catch(e) { setJbStatus('❌ Errore di rete: ' + e.message, 'var(--red)'); }
+}
+
+async function jbRead() {
+  const cfg = getJbConfig();
+  if (!cfg.apikey || !cfg.binid) return null;
+  const res = await fetch(`${JB_BASE}/b/${cfg.binid}/latest`, {
+    headers: { 'X-Master-Key': cfg.apikey }
+  });
+  if (!res.ok) throw new Error(`Read error ${res.status}`);
+  const data = await res.json();
+  return data.record;
+}
+
+async function jbWrite(content) {
+  const cfg = getJbConfig();
+  if (!cfg.apikey) throw new Error('API Key mancante');
+
+  if (!cfg.binid) {
+    // Create new bin
+    const res = await fetch(`${JB_BASE}/b`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apikey, 'X-Bin-Name': 'Preventivatore TOYS', 'X-Bin-Private': 'true' },
+      body: JSON.stringify(content)
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
+    const data = await res.json();
+    // Save bin ID
+    cfg.binid = data.metadata.id;
+    localStorage.setItem(JB_CONFIG_KEY, JSON.stringify(cfg));
+    document.getElementById('jb_binid').value = cfg.binid;
+    return;
+  }
+
+  // Update existing bin
+  const res = await fetch(`${JB_BASE}/b/${cfg.binid}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apikey },
+    body: JSON.stringify(content)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
+}
+
+// ——— HISTORY / PREVENTIVI ———
+const STORAGE_KEY = 'toys_quotes_cache'; // local cache
+let currentQuoteId = null;
+
+const PRINT_IDS = [
+  'p_profit_pct','p_shipping',
+  'p_design_h','p_design_m','p_model_cost',
+  'p_print_h','p_print_m','p_filament_g',
+  'p_finish_h','p_finish_m',
+  'p_pcs_plate','p_plates','p_extra',
+  'p_keychain_n','p_resin_g','p_nfc_n',
+  'p_opt_h','p_opt_m','p_extra_cost','p_notes'
+];
+const LASER_IDS = [
+  'l_profit_pct','l_shipping',
+  'l_design_h','l_design_m','l_file_cost',
+  'l_laser_h','l_laser_m','l_pieces',
+  'l_finish_h','l_finish_m',
+  'l_mat_type','l_mat_area','l_mat_cost',
+  'l_waste_cost','l_extra_cost','l_notes'
+];
+const SPLIT_IDS = ['sp_print','sp_laser','sp_other'];
+
+function getQuotes() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+}
+function setQuotesCache(qs) { localStorage.setItem(STORAGE_KEY, JSON.stringify(qs)); }
+
+function collectCurrentState() {
+  const fv = id => document.getElementById(id)?.value ?? '';
+  const state = { print: {}, laser: {}, split: {}, lavP: [], lavL: [], spPersons: [] };
+  state.name = fv('quote_name') || 'Senza nome';
+  PRINT_IDS.forEach(id => { state.print[id] = fv(id); });
+  LASER_IDS.forEach(id => { state.laser[id] = fv(id); });
+  SPLIT_IDS.forEach(id => { state.split[id] = fv(id); });
+  document.querySelectorAll('#p_lav_list .lav-item').forEach(item => {
+    const n = item.id.match(/_(\d+)$/)?.[1]; if (!n) return;
+    const sel = document.getElementById(`p_lav_sel_${n}`);
+    state.lavP.push({ sel: sel?.value||'', custom: fv(`p_lav_name_${n}`),
+      qty: fv(`p_lav_qty_${n}`), h: fv(`p_lav_h_${n}`), m: fv(`p_lav_m_${n}`), mat: fv(`p_lav_mat_${n}`) });
+  });
+  document.querySelectorAll('#l_lav_list .lav-item').forEach(item => {
+    const n = item.id.match(/_(\d+)$/)?.[1]; if (!n) return;
+    const sel = document.getElementById(`l_lav_sel_${n}`);
+    state.lavL.push({ sel: sel?.value||'', custom: fv(`l_lav_name_${n}`),
+      qty: fv(`l_lav_qty_${n}`), h: fv(`l_lav_h_${n}`), m: fv(`l_lav_m_${n}`), mat: fv(`l_lav_mat_${n}`) });
+  });
+  getPersonIds().forEach(id => {
+    state.spPersons.push({ name: fv(`sp_name_${id}`), pct: fv(`sp_pct_${id}`),
+      c3: fv(`sp_c3_${id}`), cl: fv(`sp_cl_${id}`), co: fv(`sp_co_${id}`) });
+  });
+  return state;
+}
+
+function applyState(state) {
+  if (!state) return;
+  const sv = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  sv('quote_name', state.name || '');
+  PRINT_IDS.forEach(id => sv(id, state.print?.[id]));
+  LASER_IDS.forEach(id => sv(id, state.laser?.[id]));
+  SPLIT_IDS.forEach(id => sv(id, state.split?.[id]));
+  if (document.getElementById('p_lav_list')) {
+    document.getElementById('p_lav_list').innerHTML = '';
+    lavCounters.p = 0;
+    (state.lavP || []).forEach(lav => {
+      addLav('p'); const n = lavCounters.p;
+      const sel = document.getElementById(`p_lav_sel_${n}`);
+      const cust = document.getElementById(`p_lav_name_${n}`);
+      if (sel) sel.value = lav.sel;
+      if (cust) { cust.value = lav.custom||''; cust.style.display = lav.sel==='Altro (scrivi sotto)'?'block':'none'; }
+      ['qty','h','m','mat'].forEach(f => sv(`p_lav_${f}_${n}`, lav[f]));
+    });
+  }
+  if (document.getElementById('l_lav_list')) {
+    document.getElementById('l_lav_list').innerHTML = '';
+    lavCounters.l = 0;
+    (state.lavL || []).forEach(lav => {
+      addLav('l'); const n = lavCounters.l;
+      const sel = document.getElementById(`l_lav_sel_${n}`);
+      const cust = document.getElementById(`l_lav_name_${n}`);
+      if (sel) sel.value = lav.sel;
+      if (cust) { cust.value = lav.custom||''; cust.style.display = lav.sel==='Altro (scrivi sotto)'?'block':'none'; }
+      ['qty','h','m','mat'].forEach(f => sv(`l_lav_${f}_${n}`, lav[f]));
+    });
+  }
+  document.getElementById('sp_persons').innerHTML = '';
+  spCounter = 0;
+  (state.spPersons || []).forEach(p => addPerson(p));
+  calcPrint(); calcLaser(); calcSplit();
+}
+
+async function saveQuote() {
+  const name = document.getElementById('quote_name')?.value?.trim();
+  if (!name) { showToast('Inserisci un nome per il preventivo'); document.getElementById('quote_name').focus(); return; }
+  const cfg = getJbConfig();
+  const hasJb = !!cfg.apikey;
+
+  const state = collectCurrentState();
+  const now = Date.now();
+  const pt = parseFloat((document.getElementById('r_quote_total')?.textContent||'').replace('€ ',''))||0;
+  const lt = parseFloat((document.getElementById('lr_quote_total')?.textContent||'').replace('€ ',''))||0;
+  state.printTotal = pt; state.laserTotal = lt; state.savedAt = now;
+
+  let qs = getQuotes();
+  if (currentQuoteId) {
+    const idx = qs.findIndex(q => q.id === currentQuoteId);
+    if (idx >= 0) qs[idx] = { ...state, id: currentQuoteId };
+    else qs.unshift({ ...state, id: currentQuoteId });
+  } else {
+    currentQuoteId = now;
+    qs.unshift({ ...state, id: currentQuoteId });
+  }
+  setQuotesCache(qs);
+  renderSidebar();
+
+  if (!hasJb) { showToast('Salvato in locale ✓ (JSONBin non configurato)'); return; }
+
+  setSyncStatus('Salvataggio su cloud…', 'var(--text-muted)');
+  try {
+    await jbWrite(qs);
+    setSyncStatus(`☁️ Sincronizzato ${new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`, 'var(--green)');
+    showToast('Salvato su cloud ✓');
+  } catch(e) {
+    setSyncStatus('⚠️ Errore cloud: ' + e.message, 'var(--red)');
+    showToast('Errore cloud — salvato solo in locale');
+  }
+}
+
+async function loadFromJb() {
+  const cfg = getJbConfig();
+  if (!cfg.apikey || !cfg.binid) return;
+  setSyncStatus('Sincronizzazione…', 'var(--text-muted)');
+  try {
+    const content = await jbRead();
+    if (content && Array.isArray(content) && content.length) {
+      setQuotesCache(content);
+      renderSidebar();
+      setSyncStatus(`☁️ Sincronizzato ${new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`, 'var(--green)');
+    } else {
+      setSyncStatus('Nessun preventivo su cloud', 'var(--text-muted)');
+    }
+  } catch(e) {
+    setSyncStatus('⚠️ ' + e.message, 'var(--red)');
+  }
+}
+
+function loadQuote(id) {
+  const qs = getQuotes();
+  const q = qs.find(q => q.id === id);
+  if (!q) return;
+  currentQuoteId = id;
+  applyState(q);
+  renderSidebar();
+  closeSidebar();
+  showToast(`Caricato: ${q.name}`);
+}
+
+async function deleteQuote(id) {
+  if (!confirm('Eliminare questo preventivo?')) return;
+  const qs = getQuotes().filter(q => q.id !== id);
+  setQuotesCache(qs);
+  if (currentQuoteId === id) currentQuoteId = null;
+  renderSidebar();
+  const cfg = getJbConfig();
+  if (cfg.apikey && cfg.binid) {
+    try { await jbWrite(qs); showToast('Eliminato e sincronizzato ✓'); }
+    catch(e) { showToast('Eliminato in locale (errore cloud)'); }
+  } else { showToast('Preventivo eliminato'); }
+}
+
+function newQuote() {
+  currentQuoteId = null;
+  PRINT_IDS.forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    if (id==='p_profit_pct') el.value=100;
+    else if (id==='p_pcs_plate'||id==='p_plates') el.value=1;
+    else el.value=0;
+  });
+  LASER_IDS.forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    if (id==='l_profit_pct') el.value=100;
+    else if (id==='l_pieces') el.value=1;
+    else if (id==='l_mat_type') el.value='custom';
+    else el.value=0;
+  });
+  SPLIT_IDS.forEach(id => { const el=document.getElementById(id); if(el) el.value=0; });
+  document.getElementById('quote_name').value='';
+  document.getElementById('p_lav_list').innerHTML='';
+  document.getElementById('l_lav_list').innerHTML='';
+  document.getElementById('sp_persons').innerHTML='';
+  lavCounters.p=0; lavCounters.l=0; spCounter=0;
+  calcPrint(); calcLaser(); calcSplit();
+  renderSidebar();
+  closeSidebar();
+  showToast('Nuovo preventivo');
+}
+
+function duplicateQuote(id) {
+  const qs = getQuotes();
+  const q = qs.find(q => q.id === id);
+  if (!q) return;
+  const now = Date.now();
+  const copy = { ...JSON.parse(JSON.stringify(q)), id: now, name: q.name+' (copia)', savedAt: now };
+  qs.unshift(copy);
+  setQuotesCache(qs);
+  renderSidebar();
+  showToast('Duplicato ✓');
+}
+
+function onQuoteNameInput() {
+  if (!currentQuoteId) return;
+  const qs = getQuotes();
+  const idx = qs.findIndex(q => q.id === currentQuoteId);
+  if (idx >= 0) {
+    qs[idx].name = document.getElementById('quote_name').value || 'Senza nome';
+    setQuotesCache(qs);
+    renderSidebar();
+  }
+}
+
+function renderSidebar() {
+  const qs = getQuotes();
+  const countEl = document.getElementById('history_count');
+  if (countEl) countEl.textContent = qs.length;
+  const list = document.getElementById('sidebar_list');
+  if (!qs.length) {
+    list.innerHTML = '<div class="sidebar-empty">Nessun preventivo salvato.<br>Compila e clicca "Salva".</div>';
+    return;
+  }
+  list.innerHTML = qs.map(q => {
+    const d = new Date(q.savedAt).toLocaleDateString('it-IT');
+    const t = new Date(q.savedAt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    const pt = q.printTotal > 0 ? `3D €${q.printTotal.toFixed(2)}` : '';
+    const lt = q.laserTotal > 0 ? `Laser €${q.laserTotal.toFixed(2)}` : '';
+    const totals = [pt,lt].filter(Boolean).join(' · ') || '—';
+    const isActive = q.id === currentQuoteId;
+    return `
+    <div class="quote-item ${isActive?'active':''}" onclick="loadQuote(${q.id})">
+      <div class="qi-name">${q.name}</div>
+      <div class="qi-meta">${d} ${t}</div>
+      <div class="qi-totals">${totals}</div>
+      <div class="qi-actions" onclick="event.stopPropagation()">
+        <button class="qi-btn" onclick="loadQuote(${q.id})">📂 Carica</button>
+        <button class="qi-btn" onclick="duplicateQuote(${q.id})">📋 Duplica</button>
+        <button class="qi-btn del" onclick="deleteQuote(${q.id})">🗑 Elimina</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar_overlay').classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar_overlay').classList.remove('open');
+}
+
+// ——— INIT ———
+loadSettings();
+loadJbConfigToForm();
+calcPrint();
+calcLaser();
+renderSidebar();
+loadFromJb();
+
+// Close modal clicking outside
+document.getElementById('settings_modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+document.getElementById('detail_modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDetail();
+});
+</script>
+</body>
+</html>
