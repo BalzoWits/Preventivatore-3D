@@ -1,0 +1,57 @@
+[
+  {
+    "print": {
+      "p_profit_pct": "100",
+      "p_shipping": "0",
+      "p_design_h": "0",
+      "p_design_m": "50",
+      "p_model_cost": "0",
+      "p_print_h": "0",
+      "p_print_m": "0",
+      "p_filament_g": "0",
+      "p_finish_h": "0",
+      "p_finish_m": "0",
+      "p_pcs_plate": "1",
+      "p_plates": "1",
+      "p_extra": "0",
+      "p_keychain_n": "0",
+      "p_resin_g": "0",
+      "p_nfc_n": "0",
+      "p_opt_h": "0",
+      "p_opt_m": "0",
+      "p_extra_cost": "0",
+      "p_notes": ""
+    },
+    "laser": {
+      "l_profit_pct": "100",
+      "l_shipping": "0",
+      "l_design_h": "0",
+      "l_design_m": "0",
+      "l_file_cost": "0",
+      "l_laser_h": "0",
+      "l_laser_m": "0",
+      "l_pieces": "1",
+      "l_finish_h": "0",
+      "l_finish_m": "0",
+      "l_mat_type": "custom",
+      "l_mat_area": "0",
+      "l_mat_cost": "0",
+      "l_waste_cost": "0",
+      "l_extra_cost": "0",
+      "l_notes": ""
+    },
+    "split": {
+      "sp_print": "0",
+      "sp_laser": "0",
+      "sp_other": "0"
+    },
+    "lavP": [],
+    "lavL": [],
+    "spPersons": [],
+    "name": "Kuzu",
+    "printTotal": 8.33,
+    "laserTotal": 0,
+    "savedAt": 1781184416219,
+    "id": 1781184411458
+  }
+]
