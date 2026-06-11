@@ -1247,6 +1247,14 @@
   <div class="sidebar-footer">
     <button class="btn" style="width:100%" onclick="saveQuote()">💾 Salva preventivo corrente</button>
     <button class="btn secondary" style="width:100%;margin-top:8px" onclick="newQuote()">＋ Nuovo preventivo</button>
+    <button class="btn secondary" style="width:100%;margin-top:8px" onclick="loadFromJb(true)">🔄 Sincronizza dal cloud</button>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn secondary" style="flex:1;font-size:12px" onclick="exportJson()">⬇ Esporta JSON</button>
+      <label class="btn secondary" style="flex:1;font-size:12px;text-align:center;cursor:pointer;margin:0">
+        ⬆ Importa JSON
+        <input type="file" accept=".json" onchange="importJson(event)" style="display:none">
+      </label>
+    </div>
     <div id="gh_sync_status" style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px"></div>
   </div>
 </div>
@@ -2402,21 +2410,22 @@ async function saveQuote() {
   }
 }
 
-async function loadFromJb() {
-  const cfg = getJbConfig();
-  if (!cfg.apikey || !cfg.binid) return;
-  setSyncStatus('Sincronizzazione…', 'var(--text-muted)');
+async function loadFromJb(manual = false) {
+  if (manual) setSyncStatus('Sincronizzazione…', 'var(--text-muted)');
   try {
     const content = await jbRead();
     if (content && Array.isArray(content) && content.length) {
       setQuotesCache(content);
       renderSidebar();
       setSyncStatus(`☁️ Sincronizzato ${new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`, 'var(--green)');
+      if (manual) showToast(`${content.length} preventivi caricati ✓`);
     } else {
       setSyncStatus('Nessun preventivo su cloud', 'var(--text-muted)');
+      if (manual) showToast('Nessun preventivo trovato sul cloud');
     }
   } catch(e) {
     setSyncStatus('⚠️ ' + e.message, 'var(--red)');
+    if (manual) showToast('Errore: ' + e.message);
   }
 }
 
@@ -2528,6 +2537,42 @@ function openSidebar() {
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar_overlay').classList.remove('open');
+}
+
+function exportJson() {
+  const qs = getQuotes();
+  if (!qs.length) { showToast('Nessun preventivo da esportare'); return; }
+  const blob = new Blob([JSON.stringify(qs, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `preventivi_${new Date().toLocaleDateString('it-IT').replace(/\//g,'-')}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast(`Esportati ${qs.length} preventivi ✓`);
+}
+
+async function importJson(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!Array.isArray(data)) throw new Error('Formato non valido');
+    if (!confirm(`Importare ${data.length} preventivi? Quelli esistenti verranno mantenuti.`)) return;
+    const existing = getQuotes();
+    // Merge: imported ones take precedence by id
+    const merged = [...data];
+    existing.forEach(q => { if (!merged.find(m => m.id === q.id)) merged.push(q); });
+    merged.sort((a,b) => b.savedAt - a.savedAt);
+    setQuotesCache(merged);
+    renderSidebar();
+    // Push to cloud
+    try { await jbWrite(merged); showToast(`Importati ${data.length} preventivi e sincronizzati ✓`); }
+    catch(e) { showToast(`Importati ${data.length} preventivi (solo locale)`); }
+  } catch(e) {
+    showToast('Errore importazione: ' + e.message);
+  }
+  event.target.value = '';
 }
 
 // ——— INIT ———
